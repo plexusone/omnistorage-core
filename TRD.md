@@ -14,21 +14,21 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Application Layer                         │
+│                    Application Layer                        │
 │         (data pipelines, custom apps, libraries)            │
 │         Marshals domain types (IR records, logs, etc.)      │
 ├─────────────────────────────────────────────────────────────┤
-│                     Format Layer                             │
+│                     Format Layer                            │
 │              (NDJSON, length-prefixed, CSV)                 │
 │              Handles record framing/delimiting              │
 ├─────────────────────────────────────────────────────────────┤
-│                   Compression Layer                          │
+│                   Compression Layer                         │
 │                  (gzip, zstd, snappy)                       │
 │              Optional compression/decompression             │
 ├─────────────────────────────────────────────────────────────┤
-│                    Backend Layer                             │
+│                    Backend Layer                            │
 │        (File, S3, GCS, SFTP, Dropbox, Channel, etc.)        │
-│              Raw byte transport/storage                      │
+│              Raw byte transport/storage                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
