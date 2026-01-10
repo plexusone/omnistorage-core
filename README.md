@@ -1,8 +1,11 @@
 # OmniStorage
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/grokify/omnistorage.svg)](https://pkg.go.dev/github.com/grokify/omnistorage)
-[![Go Report Card](https://goreportcard.com/badge/github.com/grokify/omnistorage)](https://goreportcard.com/report/github.com/grokify/omnistorage)
-[![Documentation](https://img.shields.io/badge/docs-grokify.github.io%2Fomnistorage-blue)](https://grokify.github.io/omnistorage/)
+[![Build Status][build-status-svg]][build-status-url]
+[![Lint Status][lint-status-svg]][lint-status-url]
+[![Go Report Card][goreport-svg]][goreport-url]
+[![Docs][docs-godoc-svg]][docs-godoc-url]
+[![Visualization][viz-svg]][viz-url]
+[![License][license-svg]][license-url]
 
 OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](https://rclone.org/). It provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing.
 
@@ -505,3 +508,18 @@ Contributions are welcome! Priority areas:
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+ [build-status-svg]: https://github.com/grokify/omnistorage/actions/workflows/ci.yaml/badge.svg?branch=main
+ [build-status-url]: https://github.com/grokify/omnistorage/actions/workflows/ci.yaml
+ [lint-status-svg]: https://github.com/grokify/omnistorage/actions/workflows/lint.yaml/badge.svg?branch=main
+ [lint-status-url]: https://github.com/grokify/omnistorage/actions/workflows/lint.yaml
+ [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/omnistorage
+ [goreport-url]: https://goreportcard.com/report/github.com/grokify/omnistorage
+ [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/omnistorage
+ [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/omnistorage
+ [viz-svg]: https://img.shields.io/badge/visualizaton-Go-blue.svg
+ [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fomnistorage
+ [loc-svg]: https://tokei.rs/b1/github/grokify/omnistorage
+ [repo-url]: https://github.com/grokify/omnistorage
+ [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
+ [license-url]: https://github.com/grokify/omnistorage/blob/master/LICENSE
