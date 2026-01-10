@@ -4,7 +4,7 @@ This page explains the core concepts and architecture of omnistorage.
 
 ## Layered Architecture
 
-Omnistorage uses a layered architecture where each layer handles a specific concern:
+OmniStorage uses a layered architecture where each layer handles a specific concern:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -33,7 +33,7 @@ Each layer is independent and composable. You can mix and match:
 
 ## Interface Composition
 
-Omnistorage uses interface composition to support both simple and advanced use cases:
+OmniStorage uses interface composition to support both simple and advanced use cases:
 
 ### Backend (Basic Interface)
 
@@ -181,7 +181,7 @@ See [Multi-Writer Guide](../guides/multi-writer.md) for details.
 
 ## Error Handling
 
-Omnistorage defines standard errors for common cases:
+OmniStorage defines standard errors for common cases:
 
 ```go
 var (

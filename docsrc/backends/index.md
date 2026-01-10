@@ -1,6 +1,6 @@
 # Backends Overview
 
-Omnistorage supports multiple storage backends through a unified interface. Each backend implements the core `Backend` interface, and many also implement `ExtendedBackend` for additional capabilities.
+OmniStorage supports multiple storage backends through a unified interface. Each backend implements the core `Backend` interface, and many also implement `ExtendedBackend` for additional capabilities.
 
 ## Available Backends
 

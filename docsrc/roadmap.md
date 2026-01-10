@@ -4,7 +4,7 @@ This document tracks the development roadmap for omnistorage.
 
 ## Design Philosophy
 
-Omnistorage uses **interface composition** to support both simple and advanced use cases:
+OmniStorage uses **interface composition** to support both simple and advanced use cases:
 
 - **Backend** - Basic interface for read/write operations (data pipelines, simple apps)
 - **ExtendedBackend** - Adds metadata, copy/move, directory ops (rclone-like tools)

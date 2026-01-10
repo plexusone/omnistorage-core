@@ -1,11 +1,11 @@
-# Omnistorage
+# OmniStorage
 
 **Unified storage abstraction layer for Go**
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/grokify/omnistorage.svg)](https://pkg.go.dev/github.com/grokify/omnistorage)
 [![Go Report Card](https://goreportcard.com/badge/github.com/grokify/omnistorage)](https://goreportcard.com/report/github.com/grokify/omnistorage)
 
-Omnistorage provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing. Inspired by [rclone](https://rclone.org/).
+OmniStorage provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing. Inspired by [rclone](https://rclone.org/).
 
 ## Features
 
@@ -50,9 +50,9 @@ func main() {
 }
 ```
 
-## Why Omnistorage?
+## Why OmniStorage?
 
-| Challenge | Omnistorage Solution |
+| Challenge | OmniStorage Solution |
 |-----------|---------------------|
 | Different APIs for each storage provider | Single `Backend` interface |
 | Provider-specific code | Backend abstraction with registration |

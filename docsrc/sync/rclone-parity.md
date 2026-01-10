@@ -4,7 +4,7 @@ This document tracks omnistorage's feature parity with [rclone](https://rclone.o
 
 ## Overview
 
-Omnistorage aims to provide rclone-like functionality as a Go library. While rclone is a CLI tool with 70+ backends, omnistorage focuses on providing a clean programmatic API for the most common sync operations.
+OmniStorage aims to provide rclone-like functionality as a Go library. While rclone is a CLI tool with 70+ backends, OmniStorage focuses on providing a clean programmatic API for the most common sync operations.
 
 **Current Parity: ~95% of core features**
 

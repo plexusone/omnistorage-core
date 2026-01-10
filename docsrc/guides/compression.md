@@ -1,6 +1,6 @@
 # Compression Guide
 
-Omnistorage provides compression layers that wrap io.Writer and io.Reader.
+OmniStorage provides compression layers that wrap io.Writer and io.Reader.
 
 ## Available Compressors
 

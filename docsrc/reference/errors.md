@@ -4,7 +4,7 @@ This page documents all error types in omnistorage.
 
 ## Standard Errors
 
-Omnistorage defines standard errors for common cases:
+OmniStorage defines standard errors for common cases:
 
 ```go
 var (
