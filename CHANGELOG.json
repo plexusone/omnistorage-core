@@ -1,0 +1,64 @@
+{
+  "ir_version": "1.0",
+  "project": "omnistorage",
+  "repository": "https://github.com/grokify/omnistorage",
+  "versioning": "semver",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "date": "2026-01-10",
+      "highlights": [
+        { "description": "Initial release with unified storage abstraction layer for Go" }
+      ],
+      "added": [
+        { "description": "Core `Backend` interface with `NewWriter`, `NewReader`, `Exists`, `Delete`, `List`, `Close` methods" },
+        { "description": "`RecordWriter` and `RecordReader` interfaces for streaming record-oriented data" },
+        { "description": "`ExtendedBackend` interface with `Stat`, `Mkdir`, `Rmdir`, `Copy`, `Move`, and `Features` methods" },
+        { "description": "`ObjectInfo` interface for file metadata (Size, ModTime, Hash, MimeType)" },
+        { "description": "Hash support for MD5, SHA1, SHA256, CRC32, and custom hash types" },
+        { "description": "Features struct for backend capability discovery" },
+        { "description": "Backend registry with `Register()`, `Open()`, and `Backends()` functions" },
+        { "description": "File backend (`backend/file`) for local filesystem storage" },
+        { "description": "Memory backend (`backend/memory`) for in-memory storage and testing" },
+        { "description": "S3 backend (`backend/s3`) supporting AWS S3, Cloudflare R2, MinIO, Wasabi, and other S3-compatible services" },
+        { "description": "SFTP backend (`backend/sftp`) for SSH file transfer with password and key authentication" },
+        { "description": "Channel backend (`backend/channel`) for Go channel-based inter-goroutine communication" },
+        { "description": "Multi-writer (`multi/writer`) for fan-out to multiple backends (WriteAll, WriteBestEffort, WriteQuorum modes)" },
+        { "description": "NDJSON format (`format/ndjson`) for newline-delimited JSON record framing" },
+        { "description": "Gzip compression (`compress/gzip`) wrapper" },
+        { "description": "Zstandard compression (`compress/zstd`) wrapper" },
+        { "description": "Sync package with rclone-inspired file synchronization" },
+        { "description": "`sync.Sync()` for one-way sync with optional delete" },
+        { "description": "`sync.Copy()` for copying files without deleting extras" },
+        { "description": "`sync.CopyFile()`, `sync.CopyBetweenPaths()`, `sync.CopyToPath()`, `sync.CopyFromPath()` convenience functions" },
+        { "description": "`sync.TreeCopy()` for preserving full directory structure" },
+        { "description": "`sync.Check()` for comparing files between backends" },
+        { "description": "`sync.Verify()`, `sync.VerifyFile()`, `sync.VerifyChecksum()` for verification" },
+        { "description": "`sync.VerifyWithDetails()` and `sync.VerifyAndReport()` for detailed verification results" },
+        { "description": "`sync.VerifyIntegrity()` and `sync.VerifyAllIntegrity()` for file integrity checks" },
+        { "description": "`sync.Bisync()` for bidirectional sync with conflict resolution (NewerWins, LargerWins, KeepBoth, etc.)" },
+        { "description": "Filter system (`sync/filter`) with include/exclude patterns, size filters, and age filters" },
+        { "description": "Rate limiting with token bucket algorithm for bandwidth control" },
+        { "description": "Retry with exponential backoff and jitter for failed operations" },
+        { "description": "Progress callbacks for sync operations" },
+        { "description": "Dry-run mode for sync operations" },
+        { "description": "Concurrent transfer support with configurable parallelism" },
+        { "description": "Structured logging via slog for sync operations" },
+        { "description": "Helper functions `CopyPath()` and `MovePath()` for cross-backend operations" },
+        { "description": "`AsExtended()` helper for type-safe ExtendedBackend conversion" }
+      ],
+      "documentation": [
+        { "description": "README.md with usage examples and API documentation" },
+        { "description": "ROADMAP.md with development phases and planned features" },
+        { "description": "PRD.md (Product Requirements Document)" },
+        { "description": "TRD.md (Technical Requirements Document)" },
+        { "description": "GoDoc comments on all public APIs" }
+      ],
+      "tests": [
+        { "description": "Comprehensive test suite with 80+ tests across all packages" },
+        { "description": "Conformance tests for backend implementations" },
+        { "description": "Integration tests for file, memory, and S3 backends" }
+      ]
+    }
+  ]
+}

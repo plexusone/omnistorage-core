@@ -1,0 +1,92 @@
+site_name: Omnistorage
+site_description: Unified storage abstraction layer for Go
+site_url: https://grokify.github.io/omnistorage/
+repo_url: https://github.com/grokify/omnistorage
+repo_name: grokify/omnistorage
+edit_uri: edit/master/docsrc/
+
+docs_dir: docsrc
+site_dir: docs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - Concepts: getting-started/concepts.md
+  - Backends:
+      - Overview: backends/index.md
+      - File: backends/file.md
+      - Memory: backends/memory.md
+      - S3: backends/s3.md
+      - SFTP: backends/sftp.md
+      - Channel: backends/channel.md
+  - Sync Engine:
+      - Overview: sync/index.md
+      - Operations: sync/operations.md
+      - Filtering: sync/filtering.md
+      - Transfer Controls: sync/transfer-controls.md
+      - rclone Parity: sync/rclone-parity.md
+  - Guides:
+      - Compression: guides/compression.md
+      - Multi-Writer: guides/multi-writer.md
+      - Custom Backend: guides/custom-backend.md
+  - Reference:
+      - Interfaces: reference/interfaces.md
+      - Options: reference/options.md
+      - Errors: reference/errors.md
+  - Releases:
+      - v0.1.0: releases/v0.1.0.md
+  - Roadmap: roadmap.md
+  - Changelog: changelog.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/grokify/omnistorage
+  version:
+    provider: mike
