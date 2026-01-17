@@ -28,6 +28,7 @@ import (
 
 	"github.com/grokify/mogo/log/slogutil"
 	"github.com/grokify/omnistorage/sync/filter"
+	"github.com/grokify/oscompat/tsync"
 )
 
 // Options configures sync behavior.
@@ -280,15 +281,10 @@ func NeedsUpdate(src, dst FileInfo, opts Options) bool {
 	}
 
 	// Compare modification time (unless ignored)
-	if !opts.IgnoreTime {
-		// Allow 1 second tolerance for filesystem precision differences
-		timeDiff := src.ModTime.Sub(dst.ModTime)
-		if timeDiff < 0 {
-			timeDiff = -timeDiff
-		}
-		if timeDiff > time.Second {
-			return true
-		}
+	// Uses oscompat/tsync for cross-platform timestamp comparison
+	// with appropriate tolerance for filesystem precision differences.
+	if !opts.IgnoreTime && !tsync.Equal(src.ModTime, dst.ModTime) {
+		return true
 	}
 
 	return false
