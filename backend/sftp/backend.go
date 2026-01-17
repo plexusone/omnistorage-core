@@ -32,6 +32,7 @@ import (
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 
 	"github.com/grokify/omnistorage"
 )
@@ -85,14 +86,24 @@ func New(cfg Config) (*Backend, error) {
 	}
 
 	// Build SSH config.
-	// NOTE: Host key verification is disabled by default. For production use,
-	// configure KnownHostsFile in Config to enable host key verification.
-	// This is a security risk for development/testing convenience.
+	// Host key verification is performed using the user's known_hosts file.
+	// This prevents man-in-the-middle attacks by ensuring the server's host
+	// key matches a trusted entry.
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("sftp: could not determine user home directory for known_hosts: %w", err)
+	}
+	knownHostsPath := path.Join(homeDir, ".ssh", "known_hosts")
+	hostKeyCallback, err := knownhosts.New(knownHostsPath)
+	if err != nil {
+		return nil, fmt.Errorf("sftp: could not load known_hosts file (%s): %w", knownHostsPath, err)
+	}
+
 	sshConfig := &ssh.ClientConfig{
 		User:            cfg.User,
 		Auth:            authMethods,
 		Timeout:         time.Duration(cfg.Timeout) * time.Second,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // G106: Intentional for dev/test; KnownHostsFile support planned
+		HostKeyCallback: hostKeyCallback,
 	}
 
 	// Connect
