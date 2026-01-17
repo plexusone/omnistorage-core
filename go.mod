@@ -11,7 +11,7 @@ require (
 	github.com/grokify/mogo v0.72.6
 	github.com/klauspost/compress v1.18.2
 	github.com/pkg/sftp v1.13.10
-	golang.org/x/crypto v0.46.0
+	golang.org/x/crypto v0.47.0
 )
 
 require (
