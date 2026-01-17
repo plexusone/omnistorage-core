@@ -1,12 +1,12 @@
-site_name: Omnistorage
+site_name: OmniStorage
 site_description: Unified storage abstraction layer for Go
 site_url: https://grokify.github.io/omnistorage/
 repo_url: https://github.com/grokify/omnistorage
 repo_name: grokify/omnistorage
-edit_uri: edit/master/docsrc/
+edit_uri: edit/main/docs/
 
-docs_dir: docsrc
-site_dir: docs
+docs_dir: docs
+site_dir: site
 
 theme:
   name: material
@@ -80,6 +80,7 @@ nav:
       - Options: reference/options.md
       - Errors: reference/errors.md
   - Releases:
+      - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md
   - Roadmap: roadmap.md
   - Changelog: changelog.md

@@ -1,0 +1,15 @@
+# MkDocs build output
+site/
+
+# Go coverage
+coverage.out
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
