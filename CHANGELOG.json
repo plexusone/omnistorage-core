@@ -6,7 +6,7 @@
   "commit_convention": "conventional",
   "releases": [
     {
-      "version": "v0.1.1",
+      "version": "v0.2.0",
       "date": "2026-01-17",
       "highlights": [
         { "description": "Security fix for SFTP host key verification, cross-platform timestamp improvements, and dependency updates" }
