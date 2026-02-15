@@ -38,7 +38,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
@@ -56,12 +56,11 @@ var (
 
 // Backend implements omnistorage.ExtendedBackend for S3-compatible storage.
 type Backend struct {
-	client     *s3.Client
-	uploader   *manager.Uploader
-	downloader *manager.Downloader
-	config     Config
-	closed     bool
-	mu         sync.RWMutex
+	client         *s3.Client
+	transferClient *transfermanager.Client
+	config         Config
+	closed         bool
+	mu             sync.RWMutex
 }
 
 // New creates a new S3 backend with the given configuration.
@@ -122,22 +121,16 @@ func New(cfg Config) (*Backend, error) {
 	// Create S3 client
 	client := s3.NewFromConfig(awsCfg, s3OptFns...)
 
-	// Create upload/download managers
-	uploader := manager.NewUploader(client, func(u *manager.Uploader) {
-		u.PartSize = cfg.PartSize
-		u.Concurrency = cfg.Concurrency
-	})
-
-	downloader := manager.NewDownloader(client, func(d *manager.Downloader) {
-		d.PartSize = cfg.PartSize
-		d.Concurrency = cfg.Concurrency
+	// Create transfer manager client
+	transferClient := transfermanager.New(client, func(o *transfermanager.Options) {
+		o.PartSizeBytes = cfg.PartSize
+		o.Concurrency = cfg.Concurrency
 	})
 
 	return &Backend{
-		client:     client,
-		uploader:   uploader,
-		downloader: downloader,
-		config:     cfg,
+		client:         client,
+		transferClient: transferClient,
+		config:         cfg,
 	}, nil
 }
 
@@ -622,8 +615,8 @@ func (w *s3Writer) Close() error {
 	}
 	w.closed = true
 
-	// Build PutObject input
-	input := &s3.PutObjectInput{
+	// Build UploadObject input
+	input := &transfermanager.UploadObjectInput{
 		Bucket: aws.String(w.backend.config.Bucket),
 		Key:    aws.String(w.key),
 		Body:   bytes.NewReader(w.buffer.Bytes()),
@@ -637,8 +630,8 @@ func (w *s3Writer) Close() error {
 		input.Metadata = w.metadata
 	}
 
-	// Use uploader for potentially large files
-	_, err := w.backend.uploader.Upload(w.ctx, input)
+	// Use transfer manager for potentially large files
+	_, err := w.backend.transferClient.UploadObject(w.ctx, input)
 	if err != nil {
 		return fmt.Errorf("s3: uploading object: %w", err)
 	}
