@@ -31,11 +31,11 @@ OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](
 
 ## Features
 
-- **Single interface** for multiple storage backends (local files, S3, cloud drives, etc.)
-- **Composable layers** for compression (gzip, zstd) and formatting (NDJSON)
-- **Sync engine** for file synchronization between backends (like `rclone sync`)
-- **Extended interface** for metadata, server-side copy/move, and capability discovery
-- **Backend registration** allowing external packages to implement backends
+- 🔌 **Single interface** for multiple storage backends (local files, S3, cloud drives, etc.)
+- 🧩 **Composable layers** for compression (gzip, zstd) and formatting (NDJSON)
+- 🔄 **Sync engine** for file synchronization between backends (like `rclone sync`)
+- 🔍 **Extended interface** for metadata, server-side copy/move, and capability discovery
+- 📦 **Backend registration** allowing external packages to implement backends
 
 ## Installation
 
