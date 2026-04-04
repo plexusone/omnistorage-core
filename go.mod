@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.1
 	github.com/grokify/mogo v0.73.4
 	github.com/grokify/oscompat v0.1.0
-	github.com/klauspost/compress v1.18.4
+	github.com/klauspost/compress v1.18.5
 	github.com/pkg/sftp v1.13.10
 	golang.org/x/crypto v0.49.0
 )
