@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.12
 	github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager v0.1.10
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
-	github.com/grokify/mogo v0.73.4
+	github.com/grokify/mogo v0.74.0
 	github.com/grokify/oscompat v0.1.0
 	github.com/klauspost/compress v1.18.5
 	github.com/pkg/sftp v1.13.10
