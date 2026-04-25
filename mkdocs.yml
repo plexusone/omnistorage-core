@@ -1,48 +1,39 @@
-site_name: OmniStorage
-site_description: Unified storage abstraction layer for Go
-site_url: https://grokify.github.io/omnistorage/
+site_name: OmniStorage Core
+site_description: Unified storage abstraction layer for Go (Thin Core)
+site_url: https://plexusone.github.io/omnistorage-core
 repo_url: https://github.com/plexusone/omnistorage-core
-repo_name: grokify/omnistorage
-edit_uri: edit/main/docs/
-
-docs_dir: docs
-site_dir: site
+repo_name: plexusone/omnistorage-core
 
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
+    # Dark mode first (PlexusOne default)
     - scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
   features:
-    - navigation.tabs
     - navigation.sections
     - navigation.expand
     - navigation.top
-    - search.suggest
     - search.highlight
     - content.code.copy
-    - content.action.edit
 
-plugins:
-  - search
-  - minify:
-      minify_html: true
+extra_css:
+  - https://plexusone.dev/css/plexusone-mkdocs.css
 
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
@@ -79,15 +70,14 @@ nav:
       - Interfaces: reference/interfaces.md
       - Options: reference/options.md
       - Errors: reference/errors.md
+  - API Reference: https://pkg.go.dev/github.com/plexusone/omnistorage-core
   - Releases:
+      - Changelog: changelog.md
       - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md
   - Roadmap: roadmap.md
-  - Changelog: changelog.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/plexusone/omnistorage-core
-  version:
-    provider: mike
