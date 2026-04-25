@@ -7,36 +7,46 @@
 ## Install
 
 ```bash
-go get github.com/grokify/omnistorage
+go get github.com/plexusone/omnistorage-core
 ```
 
 ## Backend-Specific Dependencies
 
-The core package has minimal dependencies. Backend-specific packages bring in their own dependencies:
+The core package has minimal dependencies. Cloud backends are in separate packages:
 
-### S3 Backend
+### Core Backends (Included)
 
-```bash
-go get github.com/grokify/omnistorage/backend/s3
-```
+These backends have minimal or no external dependencies:
 
-This brings in the AWS SDK v2.
+- `object/backend/file` - Local filesystem (no external deps)
+- `object/backend/memory` - In-memory storage (no external deps)
+- `object/backend/channel` - Go channels (no external deps)
+- `object/backend/sftp` - SSH file transfer (uses `pkg/sftp`)
 
-### Google Drive Backend
+### Cloud Backends (Separate Packages)
 
-Google backends are in a separate repository to keep the core lightweight:
-
-```bash
-go get github.com/grokify/omnistorage-google
-```
-
-### Zstandard Compression
+Cloud backends with vendor SDKs are in separate repositories:
 
 ```bash
-go get github.com/grokify/omnistorage/compress/zstd
+# AWS S3 backend
+go get github.com/plexusone/omni-aws/omnistorage/s3
+
+# Google Cloud Storage
+go get github.com/plexusone/omni-google/omnistorage/gcs
+
+# Google Drive
+go get github.com/plexusone/omni-google/omnistorage/drive
 ```
 
-This brings in `github.com/klauspost/compress`.
+### Compression
+
+Zstandard compression is included in the core:
+
+```go
+import "github.com/plexusone/omnistorage-core/object/compress/zstd"
+```
+
+This uses `github.com/klauspost/compress`.
 
 ## Import Patterns
 
@@ -44,30 +54,29 @@ This brings in `github.com/klauspost/compress`.
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/backend/s3"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/backend/memory"
 )
 
 // Use backends directly
 fileBackend := file.New(file.Config{Root: "/data"})
-s3Backend, _ := s3.New(s3.Config{Bucket: "my-bucket"})
+memBackend := memory.New()
 ```
 
 ### Registry Pattern
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core/object"
 
     // Side-effect imports register backends
-    _ "github.com/grokify/omnistorage/backend/file"
-    _ "github.com/grokify/omnistorage/backend/s3"
+    _ "github.com/plexusone/omnistorage-core/object/backend/file"
+    _ "github.com/plexusone/omnistorage-core/object/backend/memory"
 )
 
 // Open by name from configuration
-backend, _ := omnistorage.Open("s3", map[string]string{
-    "bucket": "my-bucket",
-    "region": "us-east-1",
+backend, _ := object.Open("file", map[string]string{
+    "root": "/data",
 })
 ```
 
@@ -78,13 +87,13 @@ package main
 
 import (
     "fmt"
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/file"
-    _ "github.com/grokify/omnistorage/backend/memory"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/backend/file"
+    _ "github.com/plexusone/omnistorage-core/object/backend/memory"
 )
 
 func main() {
-    backends := omnistorage.Backends()
+    backends := object.Backends()
     fmt.Println("Registered backends:", backends)
     // Output: Registered backends: [file memory]
 }

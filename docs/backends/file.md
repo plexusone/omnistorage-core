@@ -5,7 +5,7 @@ The file backend provides local filesystem storage.
 ## Installation
 
 ```go
-import "github.com/grokify/omnistorage/backend/file"
+import "github.com/plexusone/omnistorage-core/object/object/backend/file"
 ```
 
 ## Usage
@@ -33,11 +33,11 @@ r.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/file"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/object/backend/file"
 )
 
-backend, _ := omnistorage.Open("file", map[string]string{
+backend, _ := object.Open("file", map[string]string{
     "root": "/data",
 })
 ```
@@ -106,7 +106,7 @@ w, _ := backend.NewWriter(ctx, "logs/2024/01/app.log")
 
 ```go
 r, err := backend.NewReader(ctx, "missing.txt")
-if errors.Is(err, omnistorage.ErrNotFound) {
+if errors.Is(err, object.ErrNotFound) {
     log.Println("File not found")
 }
 ```

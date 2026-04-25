@@ -20,24 +20,24 @@ type WriterConfig struct {
 
 ```go
 // Set content type
-omnistorage.WithContentType("application/json")
+object.WithContentType("application/json")
 
 // Set custom metadata
-omnistorage.WithMetadata(map[string]string{
+object.WithMetadata(map[string]string{
     "author": "john",
     "version": "1.0",
 })
 
 // Set buffer size
-omnistorage.WithBufferSize(64 * 1024) // 64 KB
+object.WithBufferSize(64 * 1024) // 64 KB
 ```
 
 ### Usage
 
 ```go
 w, _ := backend.NewWriter(ctx, "data.json",
-    omnistorage.WithContentType("application/json"),
-    omnistorage.WithMetadata(map[string]string{
+    object.WithContentType("application/json"),
+    object.WithMetadata(map[string]string{
         "source": "api",
     }),
 )
@@ -61,13 +61,13 @@ type ReaderConfig struct {
 
 ```go
 // Set buffer size
-omnistorage.WithReaderBufferSize(64 * 1024)
+object.WithReaderBufferSize(64 * 1024)
 
 // Set offset (range read)
-omnistorage.WithOffset(1024)
+object.WithOffset(1024)
 
 // Set limit
-omnistorage.WithLimit(4096)
+object.WithLimit(4096)
 ```
 
 ### Usage
@@ -75,8 +75,8 @@ omnistorage.WithLimit(4096)
 ```go
 // Read bytes 1024-5120
 r, _ := backend.NewReader(ctx, "large-file.dat",
-    omnistorage.WithOffset(1024),
-    omnistorage.WithLimit(4096),
+    object.WithOffset(1024),
+    object.WithLimit(4096),
 )
 ```
 
@@ -299,7 +299,7 @@ multi.WithMode(multi.WriteQuorum)
 
 ```go
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{b1, b2, b3},
+    []object.Backend{b1, b2, b3},
     multi.WithMode(multi.WriteBestEffort),
 )
 ```

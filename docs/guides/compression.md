@@ -15,8 +15,8 @@ OmniStorage provides compression layers that wrap io.Writer and io.Reader.
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/compress/gzip"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/compress/gzip"
 )
 
 backend := file.New(file.Config{Root: "/data"})
@@ -63,7 +63,7 @@ Zstandard (zstd) provides better compression ratio and faster decompression than
 ### Writing with Zstd
 
 ```go
-import "github.com/grokify/omnistorage/compress/zstd"
+import "github.com/plexusone/omnistorage-core/object/compress/zstd"
 
 fileWriter, _ := backend.NewWriter(ctx, "data.txt.zst")
 zstdWriter, _ := zstd.NewWriter(fileWriter)
@@ -98,15 +98,15 @@ Stack compression with format layers:
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/s3"
-    "github.com/grokify/omnistorage/compress/gzip"
-    "github.com/grokify/omnistorage/format/ndjson"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/compress/gzip"
+    "github.com/plexusone/omnistorage-core/object/format/ndjson"
 )
 
-s3Backend, _ := s3.New(s3Config)
+backend := file.New(file.Config{Root: "/data"})
 
-// Create writer stack: S3 -> Gzip -> NDJSON
-raw, _ := s3Backend.NewWriter(ctx, "logs/2024-01-08.ndjson.gz")
+// Create writer stack: File -> Gzip -> NDJSON
+raw, _ := backend.NewWriter(ctx, "logs/2024-01-08.ndjson.gz")
 compressed := gzip.NewWriter(raw)
 writer := ndjson.NewWriter(compressed)
 
@@ -121,7 +121,7 @@ writer.Close() // Closes entire stack
 ### Reading the Stack
 
 ```go
-raw, _ := s3Backend.NewReader(ctx, "logs/2024-01-08.ndjson.gz")
+raw, _ := backend.NewReader(ctx, "logs/2024-01-08.ndjson.gz")
 decompressed, _ := gzip.NewReader(raw)
 reader := ndjson.NewReader(decompressed)
 

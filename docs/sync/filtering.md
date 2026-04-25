@@ -5,7 +5,7 @@ The filter package provides include/exclude patterns, size filters, and age filt
 ## Basic Usage
 
 ```go
-import "github.com/grokify/omnistorage/sync/filter"
+import "github.com/plexusone/omnistorage-core/sync/filter"
 
 f := filter.New(
     filter.Include("*.json"),

@@ -38,11 +38,11 @@ Use `errors.Is()` to check for specific errors:
 ```go
 r, err := backend.NewReader(ctx, "file.txt")
 if err != nil {
-    if errors.Is(err, omnistorage.ErrNotFound) {
+    if errors.Is(err, object.ErrNotFound) {
         log.Println("File not found")
         return nil
     }
-    if errors.Is(err, omnistorage.ErrPermissionDenied) {
+    if errors.Is(err, object.ErrPermissionDenied) {
         log.Println("Access denied")
         return err
     }
@@ -59,11 +59,11 @@ Returned when a file or path doesn't exist:
 ```go
 // Reading a non-existent file
 r, err := backend.NewReader(ctx, "missing.txt")
-// err == omnistorage.ErrNotFound
+// err == object.ErrNotFound
 
 // Stat on non-existent path
 info, err := ext.Stat(ctx, "missing.txt")
-// err == omnistorage.ErrNotFound
+// err == object.ErrNotFound
 ```
 
 ### ErrBackendClosed
@@ -75,7 +75,7 @@ backend.Close()
 
 // Any operation after close
 _, err := backend.NewWriter(ctx, "file.txt")
-// err == omnistorage.ErrBackendClosed
+// err == object.ErrBackendClosed
 ```
 
 ### ErrInvalidPath
@@ -85,7 +85,7 @@ Returned when a path is empty or invalid:
 ```go
 // Empty path
 _, err := backend.NewWriter(ctx, "")
-// err == omnistorage.ErrInvalidPath
+// err == object.ErrInvalidPath
 ```
 
 ### ErrWriterClosed
@@ -97,7 +97,7 @@ w, _ := backend.NewWriter(ctx, "file.txt")
 w.Close()
 
 _, err := w.Write([]byte("data"))
-// err == omnistorage.ErrWriterClosed
+// err == object.ErrWriterClosed
 ```
 
 ### ErrReaderClosed
@@ -109,7 +109,7 @@ r, _ := backend.NewReader(ctx, "file.txt")
 r.Close()
 
 _, err := r.Read(buf)
-// err == omnistorage.ErrReaderClosed
+// err == object.ErrReaderClosed
 ```
 
 ## Multi-Writer Errors
@@ -145,7 +145,7 @@ if err != nil {
 
 ```go
 // errors.Is works with the first wrapped error
-if errors.Is(err, omnistorage.ErrPermissionDenied) {
+if errors.Is(err, object.ErrPermissionDenied) {
     // First error was permission denied
 }
 ```

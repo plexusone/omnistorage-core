@@ -12,7 +12,7 @@ import (
     "io"
     "log"
 
-    "github.com/grokify/omnistorage/backend/file"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
 )
 
 func main() {
@@ -46,8 +46,8 @@ func main() {
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/compress/gzip"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/compress/gzip"
 )
 
 // Write compressed data
@@ -67,8 +67,8 @@ gzipReader.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/format/ndjson"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/format/ndjson"
 )
 
 // Write NDJSON records
@@ -95,30 +95,34 @@ ndjsonReader.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/file"
-    _ "github.com/grokify/omnistorage/backend/s3"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/backend/file"
+    _ "github.com/plexusone/omnistorage-core/object/backend/memory"
 )
 
 // Open backend by name
-backend, _ := omnistorage.Open("file", map[string]string{
+backend, _ := object.Open("file", map[string]string{
     "root": "/data",
 })
 defer backend.Close()
 
 // List registered backends
-backends := omnistorage.Backends() // ["file", "memory", "s3"]
+backends := object.Backends() // ["file", "memory"]
 ```
 
 ## Sync Between Backends
 
 ```go
-import "github.com/grokify/omnistorage/sync"
+import (
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/backend/memory"
+    "github.com/plexusone/omnistorage-core/object/sync"
+)
 
 srcBackend := file.New(file.Config{Root: "/local"})
-dstBackend, _ := s3.New(s3.Config{Bucket: "my-bucket"})
+dstBackend := memory.New()
 
-// Sync local to S3
+// Sync local to memory
 result, err := sync.Sync(ctx, srcBackend, dstBackend, "data/", "backup/", sync.Options{
     DeleteExtra: true,  // Delete files in dst not in src
 })
@@ -165,7 +169,7 @@ if err != nil {
 
 ```go
 // Check if backend supports extended operations
-if ext, ok := omnistorage.AsExtended(backend); ok {
+if ext, ok := object.AsExtended(backend); ok {
     // Get file metadata
     info, _ := ext.Stat(ctx, "file.txt")
     fmt.Printf("Size: %d, Modified: %s\n", info.Size(), info.ModTime())

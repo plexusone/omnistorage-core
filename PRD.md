@@ -117,7 +117,7 @@ backend, _ := omnistorage.Open("s3", map[string]string{
 // github.com/mycompany/omnistorage-mycloud
 package mycloud
 
-import "github.com/grokify/omnistorage"
+import "github.com/plexusone/omnistorage-core"
 
 func init() {
     omnistorage.Register("mycloud", New)

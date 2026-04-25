@@ -13,7 +13,7 @@ Applications can use just the `Backend` interface for simple operations, while a
 
 ```go
 // Simple apps use Backend
-func SaveData(backend omnistorage.Backend, path string, data []byte) error {
+func SaveData(backend object.Backend, path string, data []byte) error {
     w, _ := backend.NewWriter(ctx, path)
     defer w.Close()
     _, err := w.Write(data)
@@ -21,11 +21,11 @@ func SaveData(backend omnistorage.Backend, path string, data []byte) error {
 }
 
 // Advanced tools can check for extended features
-func CopyFile(backend omnistorage.Backend, src, dst string) error {
-    if ext, ok := backend.(omnistorage.ExtendedBackend); ok && ext.Features().Copy {
+func CopyFile(backend object.Backend, src, dst string) error {
+    if ext, ok := backend.(object.ExtendedBackend); ok && ext.Features().Copy {
         return ext.Copy(ctx, src, dst) // Server-side copy
     }
-    return omnistorage.CopyPath(ctx, backend, src, backend, dst) // Fallback
+    return object.CopyPath(ctx, backend, src, backend, dst) // Fallback
 }
 ```
 
@@ -242,7 +242,7 @@ Consumer cloud storage and messaging.
 > **Note:** Cloud provider backends with large SDK dependencies are in separate repos
 > to keep the core omnistorage package lightweight:
 >
-> - **Google backends** → [github.com/grokify/omnistorage-google](https://github.com/grokify/omnistorage-google)
+> - **Google backends** → [github.com/plexusone/omnistorage-core-google](https://github.com/plexusone/omnistorage-core-google)
 >   - Google Drive ✅
 >   - Google Cloud Storage (planned)
 
@@ -250,8 +250,8 @@ Consumer cloud storage and messaging.
 
 - [ ] `backend/dropbox/backend.go` - Dropbox
 - [ ] `backend/dropbox/extended.go` - ExtendedBackend implementation
-- [x] Google Drive - See `github.com/grokify/omnistorage-google/backend/drive`
-- [ ] Google Cloud Storage - See `github.com/grokify/omnistorage-google/backend/gcs`
+- [x] Google Drive - See `github.com/plexusone/omnistorage-core-google/backend/drive`
+- [ ] Google Cloud Storage - See `github.com/plexusone/omnistorage-core-google/backend/gcs`
 - [ ] `backend/onedrive/backend.go` - Microsoft OneDrive
 - [ ] `backend/onedrive/extended.go` - ExtendedBackend implementation
 - [ ] `backend/box/backend.go` - Box

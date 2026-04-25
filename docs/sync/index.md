@@ -14,7 +14,7 @@ The sync package provides rclone-like file synchronization between storage backe
 ## Quick Example
 
 ```go
-import "github.com/grokify/omnistorage/sync"
+import "github.com/plexusone/omnistorage-core/sync"
 
 srcBackend := file.New(file.Config{Root: "/local"})
 dstBackend, _ := s3.New(s3.Config{Bucket: "my-bucket"})
