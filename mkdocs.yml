@@ -1,7 +1,7 @@
 site_name: OmniStorage
 site_description: Unified storage abstraction layer for Go
 site_url: https://grokify.github.io/omnistorage/
-repo_url: https://github.com/grokify/omnistorage
+repo_url: https://github.com/plexusone/omnistorage-core
 repo_name: grokify/omnistorage
 edit_uri: edit/main/docs/
 
@@ -88,6 +88,6 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/grokify/omnistorage
+      link: https://github.com/plexusone/omnistorage-core
   version:
     provider: mike
