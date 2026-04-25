@@ -22,4 +22,4 @@ on:
 
 jobs:
   ci:
-    uses: grokify/.github/.github/workflows/go-ci.yaml@d216972968c791e80ce3b159939c79b98903c3de
+    uses: plexusone/.github/.github/workflows/go-ci.yaml@main
