@@ -1,103 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://grokify.github.io/omnistorage/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/changelog/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/changelog/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/roadmap/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/roadmap/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/channel/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/channel/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/file/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/file/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/memory/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/memory/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/s3/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/s3/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/backends/sftp/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/backends/sftp/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/getting-started/concepts/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/getting-started/concepts/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/getting-started/installation/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/getting-started/installation/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/getting-started/quick-start/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/getting-started/quick-start/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/guides/compression/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/guides/compression/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/guides/custom-backend/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/guides/custom-backend/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/guides/multi-writer/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/guides/multi-writer/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/reference/errors/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/reference/errors/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/reference/interfaces/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/reference/interfaces/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/reference/options/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/reference/options/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/releases/v0.1.0/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/releases/v0.1.0/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/releases/v0.2.0/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/releases/v0.2.0/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/sync/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/sync/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/sync/filtering/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/sync/filtering/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/sync/operations/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/sync/operations/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/sync/rclone-parity/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/sync/rclone-parity/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/omnistorage/sync/transfer-controls/</loc>
+         <loc>https://plexusone.github.io/omnistorage-core/sync/transfer-controls/</loc>
          <lastmod>2026-04-25</lastmod>
     </url>
 </urlset>
