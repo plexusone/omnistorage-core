@@ -5,6 +5,7 @@
 [![Go SAST][go-sast-svg]][go-sast-url]
 [![Go Report Card][goreport-svg]][goreport-url]
 [![Docs][docs-godoc-svg]][docs-godoc-url]
+[![Docs][docs-mkdoc-svg]][docs-mkdoc-url]
 [![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
 
@@ -18,12 +19,14 @@
  [goreport-url]: https://goreportcard.com/report/github.com/plexusone/omnistorage-core
  [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/plexusone/omnistorage-core
  [docs-godoc-url]: https://pkg.go.dev/github.com/plexusone/omnistorage-core
- [viz-svg]: https://img.shields.io/badge/visualizaton-Go-blue.svg
- [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fomnistorage
- [loc-svg]: https://tokei.rs/b1/github/grokify/omnistorage
+ [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
+ [docs-mkdoc-url]: https://plexusone.dev/omnistorage-core
+ [viz-svg]: https://img.shields.io/badge/Go-visualizaton-blue.svg
+ [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=plexusone%2Fomnistorage-core
+ [loc-svg]: https://tokei.rs/b1/github/plexusone/omnistorage-core
  [repo-url]: https://github.com/plexusone/omnistorage-core
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/plexusone/omnistorage-core/blob/master/LICENSE
+ [license-url]: https://github.com/plexusone/omnistorage-core/blob/main/LICENSE
 
 OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](https://rclone.org/). It provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing.
 
