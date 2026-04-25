@@ -5,7 +5,7 @@ The SFTP backend provides access to remote servers via SSH File Transfer Protoco
 ## Installation
 
 ```go
-import "github.com/grokify/omnistorage/backend/sftp"
+import "github.com/plexusone/omnistorage-core/object/object/backend/sftp"
 ```
 
 ## Usage
@@ -64,11 +64,11 @@ Environment variables:
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/sftp"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/object/backend/sftp"
 )
 
-backend, err := omnistorage.Open("sftp", map[string]string{
+backend, err := object.Open("sftp", map[string]string{
     "host":     "example.com",
     "user":     "username",
     "password": "password",
@@ -152,8 +152,8 @@ data, _ := io.ReadAll(r)
 
 ```go
 r, err := backend.NewReader(ctx, "large-file.bin",
-    omnistorage.WithOffset(1000),
-    omnistorage.WithLimit(500))
+    object.WithOffset(1000),
+    object.WithLimit(500))
 ```
 
 ### List
@@ -217,11 +217,11 @@ backend, _ := sftp.New(sftp.Config{
 
 ```go
 r, err := backend.NewReader(ctx, "missing.txt")
-if errors.Is(err, omnistorage.ErrNotFound) {
+if errors.Is(err, object.ErrNotFound) {
     log.Println("File not found")
 }
 
-if errors.Is(err, omnistorage.ErrPermissionDenied) {
+if errors.Is(err, object.ErrPermissionDenied) {
     log.Println("Permission denied")
 }
 ```

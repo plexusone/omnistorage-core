@@ -5,7 +5,7 @@ The memory backend provides in-memory storage, ideal for testing and temporary d
 ## Installation
 
 ```go
-import "github.com/grokify/omnistorage/backend/memory"
+import "github.com/plexusone/omnistorage-core/object/object/backend/memory"
 ```
 
 ## Usage
@@ -31,11 +31,11 @@ r.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/memory"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/object/backend/memory"
 )
 
-backend, _ := omnistorage.Open("memory", nil)
+backend, _ := object.Open("memory", nil)
 ```
 
 ## Features

@@ -5,7 +5,7 @@ The channel backend uses Go channels for inter-goroutine communication, useful f
 ## Installation
 
 ```go
-import "github.com/grokify/omnistorage/backend/channel"
+import "github.com/plexusone/omnistorage-core/object/object/backend/channel"
 ```
 
 ## Usage
@@ -40,11 +40,11 @@ r.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/channel"
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/object/backend/channel"
 )
 
-backend, _ := omnistorage.Open("channel", map[string]string{
+backend, _ := object.Open("channel", map[string]string{
     "buffer_size": "100",
     "persistent":  "true",
 })

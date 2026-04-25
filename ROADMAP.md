@@ -242,7 +242,7 @@ Consumer cloud storage and messaging.
 > **Note:** Cloud provider backends with large SDK dependencies are in separate repos
 > to keep the core omnistorage package lightweight:
 >
-> - **Google backends** → [github.com/grokify/omnistorage-google](https://github.com/grokify/omnistorage-google)
+> - **Google backends** → [github.com/plexusone/omnistorage-core-google](https://github.com/plexusone/omnistorage-core-google)
 >   - Google Drive ✅
 >   - Google Cloud Storage (planned)
 
@@ -250,8 +250,8 @@ Consumer cloud storage and messaging.
 
 - [ ] `backend/dropbox/backend.go` - Dropbox
 - [ ] `backend/dropbox/extended.go` - ExtendedBackend implementation
-- [x] Google Drive - See `github.com/grokify/omnistorage-google/backend/drive`
-- [ ] Google Cloud Storage - See `github.com/grokify/omnistorage-google/backend/gcs`
+- [x] Google Drive - See `github.com/plexusone/omnistorage-core-google/backend/drive`
+- [ ] Google Cloud Storage - See `github.com/plexusone/omnistorage-core-google/backend/gcs`
 - [ ] `backend/onedrive/backend.go` - Microsoft OneDrive
 - [ ] `backend/onedrive/extended.go` - ExtendedBackend implementation
 - [ ] `backend/box/backend.go` - Box

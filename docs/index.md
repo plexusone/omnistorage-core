@@ -2,14 +2,14 @@
 
 **Unified storage abstraction layer for Go**
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/grokify/omnistorage.svg)](https://pkg.go.dev/github.com/grokify/omnistorage)
-[![Go Report Card](https://goreportcard.com/badge/github.com/grokify/omnistorage)](https://goreportcard.com/report/github.com/grokify/omnistorage)
+[![Go Reference](https://pkg.go.dev/badge/github.com/plexusone/omnistorage-core.svg)](https://pkg.go.dev/github.com/plexusone/omnistorage-core)
+[![Go Report Card](https://goreportcard.com/badge/github.com/plexusone/omnistorage-core)](https://goreportcard.com/report/github.com/plexusone/omnistorage-core)
 
 OmniStorage provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing. Inspired by [rclone](https://rclone.org/).
 
 ## Features
 
-- **Single interface** for multiple storage backends (local files, S3, cloud drives, etc.)
+- **Single interface** for multiple storage backends (local files, cloud drives, etc.)
 - **Composable layers** for compression (gzip, zstd) and formatting (NDJSON)
 - **Sync engine** for file synchronization between backends (like `rclone sync`)
 - **Extended interface** for metadata, server-side copy/move, and capability discovery
@@ -26,7 +26,7 @@ import (
     "io"
     "log"
 
-    "github.com/grokify/omnistorage/backend/file"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
 )
 
 func main() {
@@ -62,14 +62,22 @@ func main() {
 
 ## Supported Backends
 
+### Core Backends (omnistorage-core)
+
 | Backend | Package | Status |
 |---------|---------|--------|
-| Local Filesystem | `backend/file` | Stable |
-| In-Memory | `backend/memory` | Stable |
-| S3-Compatible | `backend/s3` | Stable |
-| Go Channel | `backend/channel` | Stable |
-| Google Drive | [omnistorage-google](https://github.com/grokify/omnistorage-google) | Stable |
-| Google Cloud Storage | Planned | - |
+| Local Filesystem | `object/backend/file` | Stable |
+| In-Memory | `object/backend/memory` | Stable |
+| Go Channel | `object/backend/channel` | Stable |
+| SFTP | `object/backend/sftp` | Stable |
+
+### External Backends (separate packages)
+
+| Backend | Package | Status |
+|---------|---------|--------|
+| S3-Compatible | [omni-aws](https://github.com/plexusone/omni-aws) | Stable |
+| Google Drive | [omni-google](https://github.com/plexusone/omni-google) | Stable |
+| Google Cloud Storage | [omni-google](https://github.com/plexusone/omni-google) | Planned |
 | Azure Blob Storage | Planned | - |
 
 ## Getting Started
@@ -99,11 +107,12 @@ func main() {
 
 ## Related Projects
 
-- [omnistorage-google](https://github.com/grokify/omnistorage-google) - Google Drive and GCS backends
+- [omni-aws](https://github.com/plexusone/omni-aws) - AWS backends (S3, DynamoDB)
+- [omni-google](https://github.com/plexusone/omni-google) - Google backends (Drive, GCS)
 - [rclone](https://github.com/rclone/rclone) - Inspiration for backend coverage and sync capabilities
 - [go-cloud](https://github.com/google/go-cloud) - Google's portable cloud APIs
 - [afero](https://github.com/spf13/afero) - Filesystem abstraction
 
 ## License
 
-MIT License - see [LICENSE](https://github.com/grokify/omnistorage/blob/master/LICENSE) for details.
+MIT License - see [LICENSE](https://github.com/plexusone/omnistorage-core/blob/master/LICENSE) for details.

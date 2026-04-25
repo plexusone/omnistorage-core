@@ -8,26 +8,26 @@
 [![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
 
- [go-ci-svg]: https://github.com/grokify/omnistorage/actions/workflows/go-ci.yaml/badge.svg?branch=main
- [go-ci-url]: https://github.com/grokify/omnistorage/actions/workflows/go-ci.yaml
- [go-lint-svg]: https://github.com/grokify/omnistorage/actions/workflows/go-lint.yaml/badge.svg?branch=main
- [go-lint-url]: https://github.com/grokify/omnistorage/actions/workflows/go-lint.yaml
- [go-sast-svg]: https://github.com/grokify/omnistorage/actions/workflows/go-sast-codeql.yaml/badge.svg?branch=main
- [go-sast-url]: https://github.com/grokify/omnistorage/actions/workflows/go-sast-codeql.yaml
- [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/omnistorage
- [goreport-url]: https://goreportcard.com/report/github.com/grokify/omnistorage
- [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/omnistorage
- [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/omnistorage
+ [go-ci-svg]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-ci.yaml/badge.svg?branch=main
+ [go-ci-url]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-ci.yaml
+ [go-lint-svg]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-lint.yaml/badge.svg?branch=main
+ [go-lint-url]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-lint.yaml
+ [go-sast-svg]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-sast-codeql.yaml/badge.svg?branch=main
+ [go-sast-url]: https://github.com/plexusone/omnistorage-core/actions/workflows/go-sast-codeql.yaml
+ [goreport-svg]: https://goreportcard.com/badge/github.com/plexusone/omnistorage-core
+ [goreport-url]: https://goreportcard.com/report/github.com/plexusone/omnistorage-core
+ [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/plexusone/omnistorage-core
+ [docs-godoc-url]: https://pkg.go.dev/github.com/plexusone/omnistorage-core
  [viz-svg]: https://img.shields.io/badge/visualizaton-Go-blue.svg
  [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fomnistorage
  [loc-svg]: https://tokei.rs/b1/github/grokify/omnistorage
- [repo-url]: https://github.com/grokify/omnistorage
+ [repo-url]: https://github.com/plexusone/omnistorage-core
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/omnistorage/blob/master/LICENSE
+ [license-url]: https://github.com/plexusone/omnistorage-core/blob/master/LICENSE
 
 OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](https://rclone.org/). It provides a single interface for reading and writing to various storage backends with composable layers for compression and record framing.
 
-**[Full Documentation](https://grokify.github.io/omnistorage/)** | [API Reference](https://pkg.go.dev/github.com/grokify/omnistorage)
+**[Full Documentation](https://grokify.github.io/omnistorage/)** | [API Reference](https://pkg.go.dev/github.com/plexusone/omnistorage-core)
 
 ## Features
 
@@ -40,7 +40,7 @@ OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](
 ## Installation
 
 ```bash
-go get github.com/grokify/omnistorage
+go get github.com/plexusone/omnistorage-core
 ```
 
 ## Quick Start
@@ -55,7 +55,7 @@ import (
     "io"
     "log"
 
-    "github.com/grokify/omnistorage/backend/file"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
 )
 
 func main() {
@@ -89,8 +89,8 @@ func main() {
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/compress/gzip"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/compress/gzip"
 )
 
 // Write compressed data
@@ -110,8 +110,8 @@ gzipReader.Close()
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/format/ndjson"
+    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core/object/format/ndjson"
 )
 
 // Write NDJSON records
@@ -137,16 +137,16 @@ ndjsonReader.Close()
 ### Using the Registry
 
 ```go
-import "github.com/grokify/omnistorage"
+import "github.com/plexusone/omnistorage-core/object"
 
 // Open backend by name
-backend, _ := omnistorage.Open("file", map[string]string{
+backend, _ := object.Open("file", map[string]string{
     "root": "/data",
 })
 defer backend.Close()
 
 // List registered backends
-backends := omnistorage.Backends() // ["file", "memory", "s3"]
+backends := object.Backends() // ["file", "memory", "channel", "sftp"]
 ```
 
 ## Backends
@@ -156,7 +156,7 @@ backends := omnistorage.Backends() // ["file", "memory", "s3"]
 Local filesystem storage.
 
 ```go
-import "github.com/grokify/omnistorage/backend/file"
+import "github.com/plexusone/omnistorage-core/object/backend/file"
 
 backend := file.New(file.Config{
     Root: "/data",  // Base directory for all operations
@@ -168,61 +168,31 @@ backend := file.New(file.Config{
 In-memory storage for testing.
 
 ```go
-import "github.com/grokify/omnistorage/backend/memory"
+import "github.com/plexusone/omnistorage-core/object/backend/memory"
 
 backend := memory.New()
 ```
 
-### S3 Backend
+### Cloud Backends (Separate Packages)
 
-S3-compatible storage (AWS S3, Cloudflare R2, MinIO, Wasabi, etc.).
+Cloud backends with vendor SDKs are in separate packages to keep the core lightweight:
+
+- **S3**: [omni-aws](https://github.com/plexusone/omni-aws) - AWS S3, Cloudflare R2, MinIO, Wasabi
+- **Google Cloud Storage**: [omni-google](https://github.com/plexusone/omni-google) - GCS, Google Drive
+- **GitHub**: [omni-github](https://github.com/plexusone/omni-github) - GitHub API storage
+
+```bash
+go get github.com/plexusone/omni-aws/omnistorage
+```
 
 ```go
-import "github.com/grokify/omnistorage/backend/s3"
+import "github.com/plexusone/omni-aws/omnistorage/s3"
 
-// AWS S3
 backend, _ := s3.New(s3.Config{
     Bucket: "my-bucket",
     Region: "us-east-1",
 })
-
-// Cloudflare R2
-backend, _ := s3.New(s3.Config{
-    Bucket:   "my-bucket",
-    Endpoint: "https://<account_id>.r2.cloudflarestorage.com",
-    Region:   "auto",
-})
-
-// MinIO (local)
-backend, _ := s3.New(s3.Config{
-    Bucket:       "my-bucket",
-    Endpoint:     "http://localhost:9000",
-    UsePathStyle: true,
-    DisableSSL:   true,
-})
-
-// From environment variables
-backend, _ := s3.New(s3.ConfigFromEnv())
 ```
-
-### Google Drive
-
-Google Drive is in a separate repository to keep the core lightweight.
-
-```bash
-go get github.com/grokify/omnistorage-google
-```
-
-```go
-import "github.com/grokify/omnistorage-google/backend/drive"
-
-backend, _ := drive.New(drive.Config{
-    CredentialsFile: "credentials.json",
-    RootFolder:      "My App Data",
-})
-```
-
-See [omnistorage-google](https://github.com/grokify/omnistorage-google) for details.
 
 ## Sync Operations
 
@@ -233,7 +203,7 @@ The `sync` package provides rclone-like file synchronization.
 Make destination match source, including deletes.
 
 ```go
-import "github.com/grokify/omnistorage/sync"
+import "github.com/plexusone/omnistorage-core/object/sync"
 
 result, err := sync.Sync(ctx, srcBackend, dstBackend, "data/", "backup/", sync.Options{
     DeleteExtra: true,  // Delete files in dst not in src
@@ -266,7 +236,7 @@ result, _ := sync.CopyWithProgress(ctx, src, dst, "data/", "backup/",
 Two-way synchronization with conflict resolution.
 
 ```go
-import "github.com/grokify/omnistorage/sync"
+import "github.com/plexusone/omnistorage-core/object/sync"
 
 result, err := sync.Bisync(ctx, backend1, backend2, "folder1/", "folder2/", sync.BisyncOptions{
     ConflictStrategy: sync.ConflictNewerWins,  // Newer file wins conflicts
@@ -329,7 +299,7 @@ Sync operations support structured logging via `*slog.Logger`.
 import (
     "log/slog"
     "os"
-    "github.com/grokify/omnistorage/sync"
+    "github.com/plexusone/omnistorage-core/object/sync"
 )
 
 // With custom logger
@@ -354,7 +324,7 @@ Backends may implement `ExtendedBackend` for additional capabilities.
 
 ```go
 // Check if backend supports extended operations
-if ext, ok := omnistorage.AsExtended(backend); ok {
+if ext, ok := object.AsExtended(backend); ok {
     // Get file metadata
     info, _ := ext.Stat(ctx, "file.txt")
     fmt.Printf("Size: %d, Modified: %s\n", info.Size(), info.ModTime())
@@ -392,7 +362,7 @@ if features.Move {
 ### Gzip
 
 ```go
-import "github.com/grokify/omnistorage/compress/gzip"
+import "github.com/plexusone/omnistorage-core/object/compress/gzip"
 
 // Write
 gzWriter, _ := gzip.NewWriter(writer)
@@ -408,7 +378,7 @@ gzReader.Close()
 ### Zstandard
 
 ```go
-import "github.com/grokify/omnistorage/compress/zstd"
+import "github.com/plexusone/omnistorage-core/object/compress/zstd"
 
 // Write
 zstdWriter, _ := zstd.NewWriter(writer)
@@ -478,17 +448,17 @@ External packages can implement and register backends.
 ```go
 package mybackend
 
-import "github.com/grokify/omnistorage"
+import "github.com/plexusone/omnistorage-core"
 
 func init() {
-    omnistorage.Register("mybackend", func(config map[string]string) (omnistorage.Backend, error) {
+    object.Register("mybackend", func(config map[string]string) (object.Backend, error) {
         return New(ConfigFromMap(config))
     })
 }
 
 type Backend struct { /* ... */ }
 
-func (b *Backend) NewWriter(ctx context.Context, path string, opts ...omnistorage.WriterOption) (io.WriteCloser, error) {
+func (b *Backend) NewWriter(ctx context.Context, path string, opts ...object.WriterOption) (io.WriteCloser, error) {
     // Implementation
 }
 
@@ -497,7 +467,7 @@ func (b *Backend) NewWriter(ctx context.Context, path string, opts ...omnistorag
 
 ## Related Projects
 
-- [omnistorage-google](https://github.com/grokify/omnistorage-google) - Google Drive and GCS backends
+- [omnistorage-google](https://github.com/plexusone/omnistorage-core-google) - Google Drive and GCS backends
 - [rclone](https://github.com/rclone/rclone) - Inspiration for backend coverage and sync capabilities
 - [go-cloud](https://github.com/google/go-cloud) - Google's portable cloud APIs
 - [afero](https://github.com/spf13/afero) - Filesystem abstraction

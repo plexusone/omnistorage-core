@@ -14,7 +14,7 @@ Write the same data to multiple storage backends at once:
 ## Basic Usage
 
 ```go
-import "github.com/grokify/omnistorage/multi"
+import "github.com/plexusone/omnistorage-core/multi"
 
 // Create backends
 local := file.New(file.Config{Root: "/data"})
@@ -41,7 +41,7 @@ All backends must succeed. If any backend fails, the entire write fails.
 
 ```go
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{b1, b2, b3},
+    []object.Backend{b1, b2, b3},
     multi.WithMode(multi.WriteAll),
 )
 ```
@@ -54,7 +54,7 @@ Write to all backends but continue on failure. Errors are collected and returned
 
 ```go
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{b1, b2, b3},
+    []object.Backend{b1, b2, b3},
     multi.WithMode(multi.WriteBestEffort),
 )
 
@@ -80,7 +80,7 @@ Requires a majority of backends to succeed.
 
 ```go
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{b1, b2, b3}, // 3 backends
+    []object.Backend{b1, b2, b3}, // 3 backends
     multi.WithMode(multi.WriteQuorum),
 )
 
@@ -140,7 +140,7 @@ local := file.New(file.Config{Root: "/data"})
 cloud, _ := s3.New(s3.Config{Bucket: "backups"})
 
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{local, cloud},
+    []object.Backend{local, cloud},
     multi.WithMode(multi.WriteBestEffort), // Continue if cloud fails
 )
 
@@ -158,7 +158,7 @@ usWest, _ := s3.New(s3.Config{Bucket: "data", Region: "us-west-2"})
 euWest, _ := s3.New(s3.Config{Bucket: "data", Region: "eu-west-1"})
 
 mw, _ := multi.NewWriterWithOptions(
-    []omnistorage.Backend{usEast, usWest, euWest},
+    []object.Backend{usEast, usWest, euWest},
     multi.WithMode(multi.WriteQuorum), // 2 of 3 must succeed
 )
 ```
@@ -181,7 +181,7 @@ mw, _ := multi.NewWriter(prod, test)
 Nil backends are automatically filtered:
 
 ```go
-var optionalBackend omnistorage.Backend // may be nil
+var optionalBackend object.Backend // may be nil
 
 mw, err := multi.NewWriter(
     requiredBackend,

@@ -29,7 +29,7 @@ import (
     "context"
     "io"
 
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core/object"
 )
 ```
 
@@ -65,7 +65,7 @@ func New(config Config) (*Backend, error) {
 ### Step 3: Implement NewWriter
 
 ```go
-func (b *Backend) NewWriter(ctx context.Context, path string, opts ...omnistorage.WriterOption) (io.WriteCloser, error) {
+func (b *Backend) NewWriter(ctx context.Context, path string, opts ...object.WriterOption) (io.WriteCloser, error) {
     if err := b.checkClosed(); err != nil {
         return nil, err
     }
@@ -75,11 +75,11 @@ func (b *Backend) NewWriter(ctx context.Context, path string, opts ...omnistorag
     }
 
     if path == "" {
-        return nil, omnistorage.ErrInvalidPath
+        return nil, object.ErrInvalidPath
     }
 
     // Apply options
-    config := omnistorage.DefaultWriterConfig()
+    config := object.DefaultWriterConfig()
     for _, opt := range opts {
         opt(&config)
     }
@@ -102,7 +102,7 @@ type writer struct {
 
 func (w *writer) Write(p []byte) (n int, err error) {
     if w.closed {
-        return 0, omnistorage.ErrWriterClosed
+        return 0, object.ErrWriterClosed
     }
     return w.buffer.Write(p)
 }
@@ -121,7 +121,7 @@ func (w *writer) Close() error {
 ### Step 4: Implement NewReader
 
 ```go
-func (b *Backend) NewReader(ctx context.Context, path string, opts ...omnistorage.ReaderOption) (io.ReadCloser, error) {
+func (b *Backend) NewReader(ctx context.Context, path string, opts ...object.ReaderOption) (io.ReadCloser, error) {
     if err := b.checkClosed(); err != nil {
         return nil, err
     }
@@ -131,14 +131,14 @@ func (b *Backend) NewReader(ctx context.Context, path string, opts ...omnistorag
     }
 
     if path == "" {
-        return nil, omnistorage.ErrInvalidPath
+        return nil, object.ErrInvalidPath
     }
 
     // Download from cloud
     data, err := b.client.Download(path)
     if err != nil {
         if isNotFoundError(err) {
-            return nil, omnistorage.ErrNotFound
+            return nil, object.ErrNotFound
         }
         return nil, err
     }
@@ -199,7 +199,7 @@ func (b *Backend) checkClosed() error {
     defer b.mu.RUnlock()
 
     if b.closed {
-        return omnistorage.ErrBackendClosed
+        return object.ErrBackendClosed
     }
     return nil
 }
@@ -209,10 +209,10 @@ func (b *Backend) checkClosed() error {
 
 ```go
 func init() {
-    omnistorage.Register("mycloud", NewFromConfig)
+    object.Register("mycloud", NewFromConfig)
 }
 
-func NewFromConfig(config map[string]string) (omnistorage.Backend, error) {
+func NewFromConfig(config map[string]string) (object.Backend, error) {
     return New(Config{
         Bucket:   config["bucket"],
         APIKey:   config["api_key"],
@@ -240,7 +240,7 @@ type ExtendedBackend interface {
 ### Implementing Stat
 
 ```go
-func (b *Backend) Stat(ctx context.Context, path string) (omnistorage.ObjectInfo, error) {
+func (b *Backend) Stat(ctx context.Context, path string) (object.ObjectInfo, error) {
     if err := b.checkClosed(); err != nil {
         return nil, err
     }
@@ -248,7 +248,7 @@ func (b *Backend) Stat(ctx context.Context, path string) (omnistorage.ObjectInfo
     meta, err := b.client.GetMetadata(path)
     if err != nil {
         if isNotFoundError(err) {
-            return nil, omnistorage.ErrNotFound
+            return nil, object.ErrNotFound
         }
         return nil, err
     }
@@ -270,7 +270,7 @@ func (o *objectInfo) Name() string              { return o.name }
 func (o *objectInfo) Size() int64               { return o.size }
 func (o *objectInfo) ModTime() time.Time        { return o.modTime }
 func (o *objectInfo) IsDir() bool               { return false }
-func (o *objectInfo) Hash(t omnistorage.HashType) string { return "" }
+func (o *objectInfo) Hash(t object.HashType) string { return "" }
 func (o *objectInfo) MimeType() string          { return "" }
 func (o *objectInfo) Metadata() map[string]string { return nil }
 ```
@@ -278,8 +278,8 @@ func (o *objectInfo) Metadata() map[string]string { return nil }
 ### Implementing Features
 
 ```go
-func (b *Backend) Features() omnistorage.Features {
-    return omnistorage.Features{
+func (b *Backend) Features() object.Features {
+    return object.Features{
         Copy:           true,  // Server-side copy supported
         Move:           true,  // Server-side move supported
         Purge:          false, // Recursive delete not supported
@@ -323,7 +323,7 @@ func TestBackendConformance(t *testing.T) {
 ## Best Practices
 
 1. **Handle context cancellation** - Check `ctx.Err()` in long operations
-2. **Use standard errors** - Return `omnistorage.ErrNotFound`, etc.
+2. **Use standard errors** - Return `object.ErrNotFound`, etc.
 3. **Make delete idempotent** - Return nil for non-existent paths
 4. **Implement proper closing** - Release resources in `Close()`
 5. **Thread safety** - Use mutexes for shared state

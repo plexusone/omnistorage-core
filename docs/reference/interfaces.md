@@ -90,7 +90,7 @@ type ExtendedBackend interface {
 
 ```go
 // Check if backend supports extended operations
-if ext, ok := omnistorage.AsExtended(backend); ok {
+if ext, ok := object.AsExtended(backend); ok {
     // Get metadata
     info, _ := ext.Stat(ctx, "file.txt")
     fmt.Printf("Size: %d\n", info.Size())
@@ -144,7 +144,7 @@ fmt.Printf("Name: %s\n", info.Name())
 fmt.Printf("Size: %d bytes\n", info.Size())
 fmt.Printf("Modified: %s\n", info.ModTime())
 fmt.Printf("Is Directory: %v\n", info.IsDir())
-fmt.Printf("MD5: %s\n", info.Hash(omnistorage.HashMD5))
+fmt.Printf("MD5: %s\n", info.Hash(object.HashMD5))
 fmt.Printf("Content-Type: %s\n", info.MimeType())
 ```
 
@@ -172,7 +172,7 @@ if features.Copy {
     ext.Copy(ctx, src, dst)
 } else {
     // Fall back to read + write
-    omnistorage.CopyPath(ctx, backend, src, backend, dst)
+    object.CopyPath(ctx, backend, src, backend, dst)
 }
 ```
 
@@ -196,7 +196,7 @@ type RecordWriter interface {
 ### Usage
 
 ```go
-import "github.com/grokify/omnistorage/format/ndjson"
+import "github.com/plexusone/omnistorage-core/format/ndjson"
 
 w, _ := backend.NewWriter(ctx, "records.ndjson")
 writer := ndjson.NewWriter(w)
@@ -262,8 +262,8 @@ const (
 ```go
 info, _ := ext.Stat(ctx, "file.txt")
 
-md5 := info.Hash(omnistorage.HashMD5)
-sha256 := info.Hash(omnistorage.HashSHA256)
+md5 := info.Hash(object.HashMD5)
+sha256 := info.Hash(object.HashSHA256)
 ```
 
 ## BackendFactory
@@ -278,14 +278,14 @@ type BackendFactory func(config map[string]string) (Backend, error)
 
 ```go
 // Register a factory
-omnistorage.Register("mybackend", func(config map[string]string) (omnistorage.Backend, error) {
+object.Register("mybackend", func(config map[string]string) (object.Backend, error) {
     return mybackend.New(mybackend.Config{
         Setting: config["setting"],
     })
 })
 
 // Open using the factory
-backend, _ := omnistorage.Open("mybackend", map[string]string{
+backend, _ := object.Open("mybackend", map[string]string{
     "setting": "value",
 })
 ```

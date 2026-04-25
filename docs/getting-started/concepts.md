@@ -71,7 +71,7 @@ type ExtendedBackend interface {
 Use `AsExtended()` to check if a backend supports extended operations:
 
 ```go
-if ext, ok := omnistorage.AsExtended(backend); ok {
+if ext, ok := object.AsExtended(backend); ok {
     info, _ := ext.Stat(ctx, "file.txt")
     fmt.Printf("Size: %d bytes\n", info.Size())
 }
@@ -84,7 +84,7 @@ Backends register themselves using the `Register()` function, typically in `init
 ```go
 // backend/file/backend.go
 func init() {
-    omnistorage.Register("file", NewFromConfig)
+    object.Register("file", NewFromConfig)
 }
 ```
 
@@ -93,7 +93,7 @@ This allows configuration-driven backend selection:
 ```go
 // Select backend from environment variable
 backendType := os.Getenv("STORAGE_BACKEND") // "file", "s3", etc.
-backend, _ := omnistorage.Open(backendType, config)
+backend, _ := object.Open(backendType, config)
 ```
 
 ## Feature Discovery
@@ -118,7 +118,7 @@ if ext.Features().Copy {
     ext.Copy(ctx, src, dst)
 } else {
     // Fall back to read + write
-    omnistorage.CopyPath(ctx, backend, src, backend, dst)
+    object.CopyPath(ctx, backend, src, backend, dst)
 }
 ```
 
@@ -199,7 +199,7 @@ Use `errors.Is()` to check:
 
 ```go
 r, err := backend.NewReader(ctx, "missing.txt")
-if errors.Is(err, omnistorage.ErrNotFound) {
+if errors.Is(err, object.ErrNotFound) {
     log.Println("File not found")
 }
 ```

@@ -35,7 +35,7 @@
 ### 1.2 Package Structure
 
 ```
-github.com/grokify/omnistorage/
+github.com/plexusone/omnistorage-core/
 ├── go.mod
 ├── go.sum
 ├── interfaces.go           # Core interfaces (Backend, RecordWriter, RecordReader)
@@ -268,7 +268,7 @@ func Backends() []string {
 // backend/file/backend.go
 package file
 
-import "github.com/grokify/omnistorage"
+import "github.com/plexusone/omnistorage-core"
 
 func init() {
     omnistorage.Register("file", New)
@@ -297,7 +297,7 @@ import (
     "bufio"
     "io"
 
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core"
 )
 
 // Writer writes newline-delimited records.
@@ -350,7 +350,7 @@ import (
     "io"
     "strings"
 
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core"
 )
 
 // Reader reads newline-delimited records.
@@ -465,7 +465,7 @@ import (
     "os"
     "path/filepath"
 
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core"
 )
 
 type Backend struct {
@@ -554,7 +554,7 @@ import (
     "io"
 
     "github.com/aws/aws-sdk-go-v2/service/s3"
-    "github.com/grokify/omnistorage"
+    "github.com/plexusone/omnistorage-core"
 )
 
 type Backend struct {
@@ -620,8 +620,8 @@ var (
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/file"
-    "github.com/grokify/omnistorage/format/ndjson"
+    "github.com/plexusone/omnistorage-core/backend/file"
+    "github.com/plexusone/omnistorage-core/format/ndjson"
 )
 
 func main() {
@@ -644,9 +644,9 @@ func main() {
 
 ```go
 import (
-    "github.com/grokify/omnistorage/backend/s3"
-    "github.com/grokify/omnistorage/compress/gzip"
-    "github.com/grokify/omnistorage/format/ndjson"
+    "github.com/plexusone/omnistorage-core/backend/s3"
+    "github.com/plexusone/omnistorage-core/compress/gzip"
+    "github.com/plexusone/omnistorage-core/format/ndjson"
 )
 
 func main() {
@@ -675,9 +675,9 @@ func main() {
 ```go
 import (
     "os"
-    "github.com/grokify/omnistorage"
-    _ "github.com/grokify/omnistorage/backend/file"
-    _ "github.com/grokify/omnistorage/backend/s3"
+    "github.com/plexusone/omnistorage-core"
+    _ "github.com/plexusone/omnistorage-core/backend/file"
+    _ "github.com/plexusone/omnistorage-core/backend/s3"
 )
 
 func main() {
