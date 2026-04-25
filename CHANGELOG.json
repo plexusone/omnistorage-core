@@ -1,7 +1,7 @@
 {
   "ir_version": "1.0",
   "project": "omnistorage",
-  "repository": "https://github.com/grokify/omnistorage",
+  "repository": "https://github.com/plexusone/omnistorage-core",
   "versioning": "semver",
   "commit_convention": "conventional",
   "releases": [
