@@ -8,7 +8,7 @@ require (
 	github.com/klauspost/compress v1.18.5
 	github.com/pkg/sftp v1.13.10
 	golang.org/x/crypto v0.50.0
-	modernc.org/sqlite v1.49.1
+	modernc.org/sqlite v1.50.0
 )
 
 require (
