@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/grokify/mogo v0.74.2
 	github.com/grokify/oscompat v0.1.0
-	github.com/klauspost/compress v1.18.5
+	github.com/klauspost/compress v1.18.6
 	github.com/pkg/sftp v1.13.10
 	golang.org/x/crypto v0.50.0
 	modernc.org/sqlite v1.49.1
