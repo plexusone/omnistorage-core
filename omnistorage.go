@@ -89,6 +89,9 @@ var (
 
 	// ApplyReaderOptions applies reader options.
 	ApplyReaderOptions = object.ApplyReaderOptions
+
+	// Backends returns a sorted list of registered backend names.
+	Backends = object.Backends
 )
 
 // Re-export core errors.
