@@ -6,6 +6,22 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.4.0",
+      "date": "2026-05-03",
+      "highlights": [
+        { "description": "Root-level aggregator for batteries-included backend registration" }
+      ],
+      "added": [
+        { "description": "Root aggregator `omnistorage.go` that re-exports core types and auto-registers all built-in backends (channel, dropbox, file, memory, sftp)", "commit": "09d982d" },
+        { "description": "Users can now import `github.com/plexusone/omnistorage-core` directly to get all core backends registered automatically", "commit": "09d982d" },
+        { "description": "`Backends()` function re-exported in aggregator to list registered backends", "commit": "25da889" }
+      ],
+      "documentation": [
+        { "description": "README updated with aggregator import usage example", "commit": "" },
+        { "description": "Docs updated to explain core vs umbrella package pattern", "commit": "" }
+      ]
+    },
+    {
       "version": "v0.3.0",
       "date": "2026-04-25",
       "highlights": [

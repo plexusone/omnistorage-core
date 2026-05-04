@@ -26,14 +26,14 @@ import (
     "io"
     "log"
 
-    "github.com/plexusone/omnistorage-core/object/backend/file"
+    "github.com/plexusone/omnistorage-core" // Auto-registers all backends
 )
 
 func main() {
     ctx := context.Background()
 
-    // Create a file backend
-    backend := file.New(file.Config{Root: "/data"})
+    // Open a backend by name (file, memory, sftp, dropbox, channel)
+    backend, _ := omnistorage.Open("file", map[string]string{"root": "/data"})
     defer backend.Close()
 
     // Write a file
@@ -49,6 +49,13 @@ func main() {
     log.Println(string(data)) // "Hello, World!"
 }
 ```
+
+## Package Options
+
+| Package | Backends | Use When |
+|---------|----------|----------|
+| `omnistorage-core` | file, memory, sftp, dropbox, channel | Lightweight, no cloud SDKs |
+| `omnistorage` | All above + s3, gcs, github, drive | Full cloud support needed |
 
 ## Why OmniStorage?
 
