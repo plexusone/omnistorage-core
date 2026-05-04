@@ -22,6 +22,7 @@ These backends have minimal or no external dependencies:
 - `object/backend/memory` - In-memory storage (no external deps)
 - `object/backend/channel` - Go channels (no external deps)
 - `object/backend/sftp` - SSH file transfer (uses `pkg/sftp`)
+- `object/backend/dropbox` - Dropbox cloud storage
 
 ### Cloud Backends (Separate Packages)
 
@@ -50,6 +51,17 @@ This uses `github.com/klauspost/compress`.
 
 ## Import Patterns
 
+### Aggregator Import (Recommended)
+
+Import the root package to auto-register all core backends:
+
+```go
+import "github.com/plexusone/omnistorage-core"
+
+// All core backends registered: channel, dropbox, file, memory, sftp
+backend, _ := omnistorage.Open("file", map[string]string{"root": "/data"})
+```
+
 ### Direct Backend Usage
 
 ```go
@@ -63,13 +75,13 @@ fileBackend := file.New(file.Config{Root: "/data"})
 memBackend := memory.New()
 ```
 
-### Registry Pattern
+### Selective Registry Pattern
 
 ```go
 import (
     "github.com/plexusone/omnistorage-core/object"
 
-    // Side-effect imports register backends
+    // Side-effect imports register only specific backends
     _ "github.com/plexusone/omnistorage-core/object/backend/file"
     _ "github.com/plexusone/omnistorage-core/object/backend/memory"
 )
@@ -87,15 +99,13 @@ package main
 
 import (
     "fmt"
-    "github.com/plexusone/omnistorage-core/object"
-    _ "github.com/plexusone/omnistorage-core/object/backend/file"
-    _ "github.com/plexusone/omnistorage-core/object/backend/memory"
+    "github.com/plexusone/omnistorage-core"
 )
 
 func main() {
-    backends := object.Backends()
+    backends := omnistorage.Backends()
     fmt.Println("Registered backends:", backends)
-    // Output: Registered backends: [file memory]
+    // Output: Registered backends: [channel dropbox file memory sftp]
 }
 ```
 

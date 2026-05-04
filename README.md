@@ -46,6 +46,44 @@ OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](
 go get github.com/plexusone/omnistorage-core
 ```
 
+## Import Patterns
+
+### Batteries-Included (Recommended)
+
+Import the root package to auto-register all built-in backends:
+
+```go
+import "github.com/plexusone/omnistorage-core"
+
+// All backends registered: channel, dropbox, file, memory, sftp
+backend, _ := omnistorage.Open("file", map[string]string{"root": "/data"})
+```
+
+### Selective Import
+
+Import only specific backends for minimal dependencies:
+
+```go
+import (
+    "github.com/plexusone/omnistorage-core/object"
+    _ "github.com/plexusone/omnistorage-core/object/backend/file"
+    _ "github.com/plexusone/omnistorage-core/object/backend/memory"
+)
+
+backend, _ := object.Open("file", map[string]string{"root": "/data"})
+```
+
+### With Cloud Backends
+
+For S3, GCS, GitHub, and Google Drive, use the umbrella package:
+
+```go
+import "github.com/plexusone/omnistorage"
+
+// All backends including cloud: s3, gcs, github, drive, plus all core backends
+backend, _ := omnistorage.Open("s3", map[string]string{"bucket": "my-bucket"})
+```
+
 ## Quick Start
 
 ### Basic Read/Write
