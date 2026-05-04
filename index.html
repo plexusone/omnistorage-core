@@ -332,6 +332,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#package-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Package Options
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-omnistorage" class="md-nav__link">
     <span class="md-ellipsis">
       Why OmniStorage?
@@ -1370,6 +1379,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#package-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Package Options
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-omnistorage" class="md-nav__link">
     <span class="md-ellipsis">
       Why OmniStorage?
@@ -1488,14 +1506,14 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="s">&quot;io&quot;</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="s">&quot;log&quot;</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core&quot;</span><span class="w"> </span><span class="c1">// Auto-registers all backends</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="c1">// Create a file backend</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nx">backend</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">Root</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">})</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="c1">// Open a backend by name (file, memory, sftp, dropbox, channel)</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nx">backend</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">omnistorage</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">})</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">backend</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="c1">// Write a file</span>
@@ -1511,6 +1529,28 @@
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span><span class="w"> </span><span class="c1">// &quot;Hello, World!&quot;</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="p">}</span>
 </code></pre></div>
+<h2 id="package-options">Package Options<a class="headerlink" href="#package-options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Backends</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>omnistorage-core</code></td>
+<td>file, memory, sftp, dropbox, channel</td>
+<td>Lightweight, no cloud SDKs</td>
+</tr>
+<tr>
+<td><code>omnistorage</code></td>
+<td>All above + s3, gcs, github, drive</td>
+<td>Full cloud support needed</td>
+</tr>
+</tbody>
+</table>
 <h2 id="why-omnistorage">Why OmniStorage?<a class="headerlink" href="#why-omnistorage" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

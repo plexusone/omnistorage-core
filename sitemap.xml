@@ -2,106 +2,106 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/changelog/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/roadmap/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/channel/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/file/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/memory/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/s3/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/backends/sftp/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/getting-started/concepts/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/getting-started/installation/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/getting-started/quick-start/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/guides/compression/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/guides/custom-backend/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/guides/multi-writer/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/reference/errors/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/reference/interfaces/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/reference/options/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/releases/v0.1.0/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/releases/v0.2.0/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/releases/v0.3.0/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/sync/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/sync/filtering/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/sync/operations/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/sync/rclone-parity/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
     <url>
          <loc>https://plexusone.github.io/omnistorage-core/sync/transfer-controls/</loc>
-         <lastmod>2026-04-26</lastmod>
+         <lastmod>2026-05-04</lastmod>
     </url>
 </urlset>

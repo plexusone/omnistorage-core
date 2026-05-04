@@ -453,6 +453,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#aggregator-import-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregator Import (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#direct-backend-usage" class="md-nav__link">
     <span class="md-ellipsis">
       Direct Backend Usage
@@ -462,9 +471,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registry-pattern" class="md-nav__link">
+  <a href="#selective-registry-pattern" class="md-nav__link">
     <span class="md-ellipsis">
-      Registry Pattern
+      Selective Registry Pattern
     </span>
   </a>
   
@@ -1439,6 +1448,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#aggregator-import-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregator Import (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#direct-backend-usage" class="md-nav__link">
     <span class="md-ellipsis">
       Direct Backend Usage
@@ -1448,9 +1466,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registry-pattern" class="md-nav__link">
+  <a href="#selective-registry-pattern" class="md-nav__link">
     <span class="md-ellipsis">
-      Registry Pattern
+      Selective Registry Pattern
     </span>
   </a>
   
@@ -1515,6 +1533,7 @@
 <li><code>object/backend/memory</code> - In-memory storage (no external deps)</li>
 <li><code>object/backend/channel</code> - Go channels (no external deps)</li>
 <li><code>object/backend/sftp</code> - SSH file transfer (uses <code>pkg/sftp</code>)</li>
+<li><code>object/backend/dropbox</code> - Dropbox cloud storage</li>
 </ul>
 <h3 id="cloud-backends-separate-packages">Cloud Backends (Separate Packages)<a class="headerlink" href="#cloud-backends-separate-packages" title="Permanent link">&para;</a></h3>
 <p>Cloud backends with vendor SDKs are in separate repositories:</p>
@@ -1533,45 +1552,50 @@
 </code></pre></div>
 <p>This uses <code>github.com/klauspost/compress</code>.</p>
 <h2 id="import-patterns">Import Patterns<a class="headerlink" href="#import-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="direct-backend-usage">Direct Backend Usage<a class="headerlink" href="#direct-backend-usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/memory&quot;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1">// Use backends directly</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="nx">fileBackend</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">Root</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">})</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nx">memBackend</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memory</span><span class="p">.</span><span class="nx">New</span><span class="p">()</span>
+<h3 id="aggregator-import-recommended">Aggregator Import (Recommended)<a class="headerlink" href="#aggregator-import-recommended" title="Permanent link">&para;</a></h3>
+<p>Import the root package to auto-register all core backends:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core&quot;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// All core backends registered: channel, dropbox, file, memory, sftp</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nx">backend</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">omnistorage</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">})</span>
 </code></pre></div>
-<h3 id="registry-pattern">Registry Pattern<a class="headerlink" href="#registry-pattern" title="Permanent link">&para;</a></h3>
+<h3 id="direct-backend-usage">Direct Backend Usage<a class="headerlink" href="#direct-backend-usage" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object&quot;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="c1">// Side-effect imports register backends</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/memory&quot;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1">// Open by name from configuration</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="nx">backend</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">object</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="s">&quot;root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">})</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/memory&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1">// Use backends directly</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nx">fileBackend</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">Root</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">})</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nx">memBackend</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memory</span><span class="p">.</span><span class="nx">New</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="selective-registry-pattern">Selective Registry Pattern<a class="headerlink" href="#selective-registry-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object&quot;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="c1">// Side-effect imports register only specific backends</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/memory&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1">// Open by name from configuration</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="nx">backend</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">object</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="s">&quot;root&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/data&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">})</span>
 </code></pre></div>
 <h2 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="s">&quot;fmt&quot;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object&quot;</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/file&quot;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="s">&quot;github.com/plexusone/omnistorage-core/object/backend/memory&quot;</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nx">backends</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">object</span><span class="p">.</span><span class="nx">Backends</span><span class="p">()</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Registered backends:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">backends</span><span class="p">)</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="c1">// Output: Registered backends: [file memory]</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="s">&quot;github.com/plexusone/omnistorage-core&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nx">backends</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">omnistorage</span><span class="p">.</span><span class="nx">Backends</span><span class="p">()</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Registered backends:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">backends</span><span class="p">)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="c1">// Output: Registered backends: [channel dropbox file memory sftp]</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
