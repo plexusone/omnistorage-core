@@ -310,7 +310,8 @@ func TestSessionError(t *testing.T) {
 	})
 
 	t.Run("non-session error returns empty code", func(t *testing.T) {
-		err := json.Unmarshal([]byte("invalid"), nil)
+		var v int
+		err := json.Unmarshal([]byte("invalid"), &v)
 		code := session.ErrorCode(err)
 		if code != "" {
 			t.Errorf("Expected empty code for non-session error, got %s", code)

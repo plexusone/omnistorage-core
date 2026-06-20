@@ -82,11 +82,10 @@ func (s *Store) Create(ctx context.Context, sess *session.Session) error {
 	}
 
 	// Update user index (store as JSON array of session IDs)
+	// Best effort - don't fail the create if index update fails.
+	// The cleanup routine will handle orphaned entries.
 	userKey := s.userSessionsKey(sess.UserID.String())
-	if err := s.addToUserIndex(ctx, userKey, sess.ID, ttl); err != nil {
-		// Best effort - don't fail the create
-		// The cleanup routine will handle orphaned entries
-	}
+	_ = s.addToUserIndex(ctx, userKey, sess.ID, ttl)
 
 	return nil
 }
