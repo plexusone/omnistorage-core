@@ -3,7 +3,7 @@ module github.com/plexusone/omnistorage-core
 go 1.26.0
 
 require (
-	github.com/grokify/mogo v0.74.5
+	github.com/grokify/mogo v0.74.6
 	github.com/grokify/oscompat v0.4.0
 	github.com/klauspost/compress v1.18.6
 	github.com/pkg/sftp v1.13.10
