@@ -49,13 +49,19 @@ nav:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quick-start.md
       - Concepts: getting-started/concepts.md
-  - Backends:
+  - Object Storage:
       - Overview: backends/index.md
       - File: backends/file.md
       - Memory: backends/memory.md
       - S3: backends/s3.md
       - SFTP: backends/sftp.md
       - Channel: backends/channel.md
+  - Key-Value Storage:
+      - Overview: kvs/index.md
+  - Session Storage:
+      - Overview: session/index.md
+      - Backends: session/backends.md
+      - Controls: session/controls.md
   - Sync Engine:
       - Overview: sync/index.md
       - Operations: sync/operations.md
