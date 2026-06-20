@@ -39,6 +39,8 @@ OmniStorage is a unified storage abstraction layer for Go, inspired by [rclone](
 - 🔄 **Sync engine** for file synchronization between backends (like `rclone sync`)
 - 🔍 **Extended interface** for metadata, server-side copy/move, and capability discovery
 - 📦 **Backend registration** allowing external packages to implement backends
+- 🗄️ **Key-value storage** with TTL support (memory, SQLite, Redis backends)
+- 🔐 **Session storage** with multi-site isolation, size limits, and per-user session limits
 
 ## Installation
 
@@ -358,6 +360,76 @@ result, _ := sync.Sync(ctx, src, dst, "data/", "backup/", sync.Options{
 ```
 
 When no logger is provided, a null logger is used (no output).
+
+## Key-Value Storage
+
+The `kvs` package provides a unified key-value storage interface with TTL support.
+
+```go
+import kvsredis "github.com/plexusone/omnistorage-core/kvs/backend/redis"
+
+store, _ := kvsredis.New(kvsredis.Config{
+    URL:       "redis://localhost:6379",
+    KeyPrefix: "myapp:",
+})
+defer store.Close()
+
+// Set with TTL
+store.Set(ctx, "user:123", []byte(`{"name":"alice"}`), time.Hour)
+
+// Get
+data, _ := store.Get(ctx, "user:123")
+
+// List keys by prefix
+keys, _ := store.List(ctx, "user:")
+```
+
+**Available backends:**
+
+- `kvs/backend/memory` - In-memory (ephemeral)
+- `kvs/backend/sqlite` - SQLite (persistent)
+- `kvs/backend/redis` - Redis (distributed)
+
+## Session Storage
+
+The `session` package provides secure session management with multi-site isolation.
+
+```go
+import (
+    "github.com/plexusone/omnistorage-core/session"
+    sessionmemory "github.com/plexusone/omnistorage-core/session/backend/memory"
+)
+
+// Create store with controls
+store := sessionmemory.NewWithControls(session.Config{
+    SiteID:             "myapp",       // Multi-site isolation
+    MaxSessionSize:     1024 * 1024,   // 1MB limit
+    MaxSessionsPerUser: 5,             // Per-user limit
+    DefaultTTL:         24 * time.Hour,
+})
+defer store.Close()
+
+// Create session
+sess, _ := session.NewSession(userID, 24*time.Hour)
+sess.Data["role"] = "admin"
+store.Create(ctx, sess)
+
+// Retrieve session
+sess, err := store.Get(ctx, sessionID)
+```
+
+**Features:**
+
+- **Multi-site isolation** - SiteID prevents cross-site session access
+- **Size limits** - Configurable max session size
+- **Per-user limits** - Automatic oldest session eviction
+- **JSON validation** - Blocks non-serializable data
+- **Violation callbacks** - Hook into metrics/alerting
+
+**Available backends:**
+
+- `session/backend/memory` - In-memory (development)
+- `session/backend/kvs` - Adapts any KVS backend (Redis, SQLite)
 
 ## Extended Interface
 
