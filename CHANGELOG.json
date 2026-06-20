@@ -6,6 +6,47 @@
   "commitConvention": "conventional",
   "releases": [
     {
+      "version": "v0.5.0",
+      "date": "2026-06-20",
+      "highlights": [
+        { "description": "Session storage package with multi-site isolation, size controls, and per-user limits. Redis backend for KVS." }
+      ],
+      "added": [
+        { "description": "Session storage package (`session/`) with `Store` interface for session management", "commit": "7d9fc52" },
+        { "description": "`ControlledStore` wrapper with size limits, JSON validation, and violation callbacks", "commit": "7d9fc52" },
+        { "description": "Multi-site isolation via `SiteID` configuration for secure session separation", "commit": "7d9fc52" },
+        { "description": "`MaxSessionsPerUser` limit with automatic oldest session eviction", "commit": "7d9fc52" },
+        { "description": "Structured error types with machine-readable codes for HTTP status mapping", "commit": "7d9fc52" },
+        { "description": "In-memory session backend (`session/backend/memory`) for development/testing", "commit": "7d9fc52" },
+        { "description": "KVS session backend (`session/backend/kvs`) adapting any `kvs.ListableStore`", "commit": "7d9fc52" },
+        { "description": "Redis KVS backend (`kvs/backend/redis`) using `go-redis/v9`", "commit": "af070a6" },
+        { "description": "`ViolationHandler` callback for metrics and alerting on policy violations", "commit": "7d9fc52" }
+      ],
+      "documentation": [
+        { "description": "KVS package documentation (`docs/kvs/index.md`)", "commit": "b0487b7" },
+        { "description": "Session package overview (`docs/session/index.md`)", "commit": "b0487b7" },
+        { "description": "Session backends guide (`docs/session/backends.md`)", "commit": "b0487b7" },
+        { "description": "Session controls reference (`docs/session/controls.md`)", "commit": "b0487b7" },
+        { "description": "MkDocs navigation updated with Key-Value Storage and Session Storage sections", "commit": "b0487b7" }
+      ],
+      "tests": [
+        { "description": "Comprehensive tests for `ControlledStore` including size limits, JSON validation, and site isolation", "commit": "2fc32ec" }
+      ],
+      "fixed": [
+        { "description": "Linting issues in session package resolved", "commit": "c39f3de" }
+      ],
+      "dependencies": [
+        { "description": "Add `github.com/redis/go-redis/v9` v9.20.1 for Redis KVS backend", "commit": "a14c5d6" },
+        { "description": "Promote `github.com/google/uuid` to direct dependency", "commit": "a14c5d6" },
+        { "description": "Bump `github.com/grokify/mogo` from 0.74.5 to 0.74.6", "commit": "f8bdc19" },
+        { "description": "Bump `golang.org/x/crypto` from 0.52.0 to 0.53.0", "commit": "da59873" },
+        { "description": "Bump `golang.org/x/sys` from 0.45.0 to 0.46.0", "commit": "a14c5d6" },
+        { "description": "Bump `modernc.org/libc` from 1.72.3 to 1.73.4", "commit": "a14c5d6" },
+        { "description": "Bump `modernc.org/sqlite` from 1.50.0 to 1.52.0", "commit": "c3f9f97" },
+        { "description": "Bump `github.com/grokify/oscompat` from 0.3.0 to 0.4.0", "commit": "c682e77" }
+      ]
+    },
+    {
       "version": "v0.4.0",
       "date": "2026-05-03",
       "highlights": [
