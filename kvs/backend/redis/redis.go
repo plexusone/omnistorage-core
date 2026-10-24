@@ -7,6 +7,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/plexusone/omnistorage-core/kvs"
@@ -140,8 +141,11 @@ func (s *Store) List(ctx context.Context, prefix string) ([]string, error) {
 		return nil, kvs.ErrClosed
 	}
 
-	// Build the full pattern
-	pattern := s.key(prefix) + "*"
+	// Build the full pattern. The prefix is literal, so escape glob
+	// metacharacters before appending the wildcard; otherwise a prefix
+	// such as "user:*" would match keys outside the requested prefix.
+	fullPrefix := s.key(prefix)
+	pattern := escapeGlob(fullPrefix) + "*"
 
 	var keys []string
 	var cursor uint64
@@ -155,9 +159,9 @@ func (s *Store) List(ctx context.Context, prefix string) ([]string, error) {
 			return nil, fmt.Errorf("redis scan: %w", err)
 		}
 
-		// Strip prefix from keys
+		// Keep only keys under the requested prefix and strip KeyPrefix.
 		for _, k := range scanKeys {
-			if len(k) > len(s.keyPrefix) {
+			if strings.HasPrefix(k, fullPrefix) && len(k) > len(s.keyPrefix) {
 				keys = append(keys, k[len(s.keyPrefix):])
 			}
 		}
@@ -168,6 +172,21 @@ func (s *Store) List(ctx context.Context, prefix string) ([]string, error) {
 	}
 
 	return keys, nil
+}
+
+// escapeGlob escapes the Redis glob metacharacters \, *, ?, [ and ] so
+// that s matches only itself in a SCAN MATCH or KEYS pattern.
+func escapeGlob(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		switch r {
+		case '\\', '*', '?', '[', ']':
+			b.WriteByte('\\')
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
 }
 
 // Close releases storage resources.
