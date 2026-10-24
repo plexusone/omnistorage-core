@@ -128,7 +128,7 @@ store := sessionmemory.NewWithControls(cfg,
         if event.Type == session.ViolationSizeExceeded {
             alerting.Warn("Session size limit exceeded", map[string]any{
                 "user_id":    event.UserID,
-                "session_id": event.SessionID,
+                "session_ref": event.SessionRef,
                 "size":       event.Size,
                 "limit":      event.Limit,
             })
@@ -164,13 +164,20 @@ Log output:
   "level": "WARN",
   "msg": "session policy violation",
   "type": "size_exceeded",
-  "session_id": "abc123",
+  "session_ref": "3f1c9a2e",
   "user_id": "550e8400-e29b-41d4-a716-446655440000",
   "size": 1048577,
   "limit": 1048576,
   "message": "size 1048577 exceeds limit 1048576"
 }
 ```
+
+Session IDs are bearer credentials, so they never appear in violation
+logs, `ViolationEvent`s or `SessionError` details. Each carries
+`session_ref` / `SessionRef` instead: `session.SessionRef(id)`, the first 8
+hex characters of the SHA-256 of the ID. Compute the same value from a
+session ID you hold to correlate log lines. `ViolationEvent.SessionID` is
+deprecated and no longer set.
 
 ## Structured Errors
 

@@ -1,9 +1,12 @@
 package session_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log/slog"
 	"strings"
 	"testing"
 	"time"
@@ -873,5 +876,90 @@ func TestControlledStore_DeleteByUserIDSiteScoped(t *testing.T) {
 	}
 	if n != 1 {
 		t.Fatalf("unscoped DeleteByUserID deleted %d, want 1", n)
+	}
+}
+
+// Session IDs are bearer credentials: violation logs, events and errors
+// must carry only the SessionRef, never the ID itself.
+func TestViolationsDoNotExposeSessionID(t *testing.T) {
+	ctx := context.Background()
+	userID := uuid.New()
+
+	var logs bytes.Buffer
+	var events []session.ViolationEvent
+	raw := sessionmemory.New(session.Config{DefaultTTL: time.Hour})
+	defer raw.Close()
+	store := session.WithControls(raw, session.Config{
+		SiteID:         "site-a",
+		MaxSessionSize: 200,
+		DefaultTTL:     time.Hour,
+	},
+		session.WithLogger(slog.New(slog.NewJSONHandler(&logs, nil))),
+		session.WithViolationHandler(func(_ context.Context, e session.ViolationEvent) {
+			events = append(events, e)
+		}),
+	)
+
+	// Size violation.
+	big, err := session.NewSession(userID, time.Hour)
+	if err != nil {
+		t.Fatalf("NewSession failed: %v", err)
+	}
+	big.Data = map[string]any{"blob": strings.Repeat("x", 500)}
+	createErr := store.Create(ctx, big)
+	if createErr == nil {
+		t.Fatal("Create should fail the size limit")
+	}
+
+	// Site mismatch violation.
+	foreign, err := session.NewSession(userID, time.Hour)
+	if err != nil {
+		t.Fatalf("NewSession failed: %v", err)
+	}
+	foreign.SiteID = "site-b"
+	if err := raw.Create(ctx, foreign); err != nil {
+		t.Fatalf("Create failed: %v", err)
+	}
+	if _, err := store.Get(ctx, foreign.ID); !errors.Is(err, session.ErrNotFound) {
+		t.Fatalf("Get err = %v, want ErrNotFound", err)
+	}
+
+	if len(events) != 2 {
+		t.Fatalf("got %d violation events, want 2", len(events))
+	}
+	for i, want := range []*session.Session{big, foreign} {
+		if events[i].SessionID != "" {
+			t.Errorf("event %d SessionID = %q, want empty", i, events[i].SessionID)
+		}
+		if events[i].SessionRef != session.SessionRef(want.ID) || events[i].SessionRef == "" {
+			t.Errorf("event %d SessionRef = %q, want %q", i, events[i].SessionRef, session.SessionRef(want.ID))
+		}
+		if strings.Contains(fmt.Sprintf("%+v", events[i]), want.ID) {
+			t.Errorf("event %d contains the session ID", i)
+		}
+		if strings.Contains(logs.String(), want.ID) {
+			t.Errorf("log contains session ID of session %d", i)
+		}
+		if !strings.Contains(logs.String(), session.SessionRef(want.ID)) {
+			t.Errorf("log lacks session_ref of session %d", i)
+		}
+	}
+
+	var serr *session.SessionError
+	if !errors.As(createErr, &serr) {
+		t.Fatalf("Create err = %T, want *SessionError", createErr)
+	}
+	if strings.Contains(fmt.Sprintf("%v %+v", createErr, serr.Details), big.ID) {
+		t.Error("SessionError exposes the session ID")
+	}
+}
+
+func TestSessionRef(t *testing.T) {
+	if got := session.SessionRef(""); got != "" {
+		t.Fatalf("SessionRef(\"\") = %q, want empty", got)
+	}
+	// First 4 bytes of SHA-256("abc").
+	if got := session.SessionRef("abc"); got != "ba7816bf" {
+		t.Fatalf("SessionRef(\"abc\") = %q, want %q", got, "ba7816bf")
 	}
 }

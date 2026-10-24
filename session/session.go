@@ -15,7 +15,9 @@ package session
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -87,6 +89,19 @@ func (s *Session) TTL() time.Duration {
 		return 0
 	}
 	return ttl
+}
+
+// SessionRef returns a short, non-reversible reference to a session ID for
+// logs, errors and violation events: the first 8 hex characters of the
+// SHA-256 of the ID. Session IDs are bearer credentials and must not be
+// logged in full; the reference lets log lines about the same session be
+// correlated without exposing it. SessionRef returns "" for an empty ID.
+func SessionRef(id string) string {
+	if id == "" {
+		return ""
+	}
+	sum := sha256.Sum256([]byte(id))
+	return hex.EncodeToString(sum[:4])
 }
 
 // SessionIDLength is the length of generated session IDs in bytes.

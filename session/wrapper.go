@@ -23,13 +23,20 @@ const (
 
 // ViolationEvent contains information about a policy violation.
 type ViolationEvent struct {
-	Type      ViolationType
+	Type ViolationType
+	// SessionID is no longer set, because session IDs are bearer
+	// credentials and must not reach logs or metrics.
+	//
+	// Deprecated: Use SessionRef.
 	SessionID string
-	UserID    uuid.UUID
-	SiteID    string // Site identifier for multi-site isolation
-	Size      int    // Current size in bytes
-	Limit     int    // Configured limit
-	Message   string
+	// SessionRef is SessionRef(id) of the session involved, a
+	// non-reversible reference safe to log.
+	SessionRef string
+	UserID     uuid.UUID
+	SiteID     string // Site identifier for multi-site isolation
+	Size       int    // Current size in bytes
+	Limit      int    // Configured limit
+	Message    string
 }
 
 // ViolationHandler is called when a session policy is violated.
@@ -108,13 +115,13 @@ func (s *ControlledStore) validateSession(ctx context.Context, session *Session)
 		err := NewSessionError(
 			ErrCodeInvalidSession,
 			"empty user ID",
-			map[string]any{"session_id": session.ID},
+			map[string]any{"session_ref": SessionRef(session.ID)},
 			ErrInvalidSession,
 		)
 		s.reportViolation(ctx, ViolationEvent{
-			Type:      ViolationInvalidSession,
-			SessionID: session.ID,
-			Message:   "empty user ID",
+			Type:       ViolationInvalidSession,
+			SessionRef: SessionRef(session.ID),
+			Message:    "empty user ID",
 		})
 		return err
 	}
@@ -136,17 +143,17 @@ func (s *ControlledStore) validateSerializable(ctx context.Context, session *Ses
 			ErrCodeNotSerializable,
 			"session data is not JSON-serializable",
 			map[string]any{
-				"session_id": session.ID,
-				"user_id":    session.UserID.String(),
-				"error":      err.Error(),
+				"session_ref": SessionRef(session.ID),
+				"user_id":     session.UserID.String(),
+				"error":       err.Error(),
 			},
 			err,
 		)
 		s.reportViolation(ctx, ViolationEvent{
-			Type:      ViolationNotSerializable,
-			SessionID: session.ID,
-			UserID:    session.UserID,
-			Message:   fmt.Sprintf("marshal failed: %v", err),
+			Type:       ViolationNotSerializable,
+			SessionRef: SessionRef(session.ID),
+			UserID:     session.UserID,
+			Message:    fmt.Sprintf("marshal failed: %v", err),
 		})
 		return serr
 	}
@@ -158,17 +165,17 @@ func (s *ControlledStore) validateSerializable(ctx context.Context, session *Ses
 			ErrCodeNotSerializable,
 			"session data JSON is malformed",
 			map[string]any{
-				"session_id": session.ID,
-				"user_id":    session.UserID.String(),
-				"error":      err.Error(),
+				"session_ref": SessionRef(session.ID),
+				"user_id":     session.UserID.String(),
+				"error":       err.Error(),
 			},
 			err,
 		)
 		s.reportViolation(ctx, ViolationEvent{
-			Type:      ViolationNotSerializable,
-			SessionID: session.ID,
-			UserID:    session.UserID,
-			Message:   fmt.Sprintf("unmarshal failed: %v", err),
+			Type:       ViolationNotSerializable,
+			SessionRef: SessionRef(session.ID),
+			UserID:     session.UserID,
+			Message:    fmt.Sprintf("unmarshal failed: %v", err),
 		})
 		return serr
 	}
@@ -189,7 +196,7 @@ func (s *ControlledStore) checkSizeLimit(ctx context.Context, session *Session) 
 		return NewSessionError(
 			ErrCodeNotSerializable,
 			"failed to serialize session for size check",
-			map[string]any{"session_id": session.ID},
+			map[string]any{"session_ref": SessionRef(session.ID)},
 			err,
 		)
 	}
@@ -200,21 +207,21 @@ func (s *ControlledStore) checkSizeLimit(ctx context.Context, session *Session) 
 			ErrCodeSizeLimitExceeded,
 			fmt.Sprintf("session size %d bytes exceeds limit %d bytes", size, s.config.MaxSessionSize),
 			map[string]any{
-				"session_id": session.ID,
-				"user_id":    session.UserID.String(),
-				"size":       size,
-				"limit":      s.config.MaxSessionSize,
+				"session_ref": SessionRef(session.ID),
+				"user_id":     session.UserID.String(),
+				"size":        size,
+				"limit":       s.config.MaxSessionSize,
 			},
 			ErrSizeLimitExceeded,
 		)
 
 		s.reportViolation(ctx, ViolationEvent{
-			Type:      ViolationSizeExceeded,
-			SessionID: session.ID,
-			UserID:    session.UserID,
-			Size:      size,
-			Limit:     s.config.MaxSessionSize,
-			Message:   fmt.Sprintf("size %d exceeds limit %d", size, s.config.MaxSessionSize),
+			Type:       ViolationSizeExceeded,
+			SessionRef: SessionRef(session.ID),
+			UserID:     session.UserID,
+			Size:       size,
+			Limit:      s.config.MaxSessionSize,
+			Message:    fmt.Sprintf("size %d exceeds limit %d", size, s.config.MaxSessionSize),
 		})
 
 		return serr
@@ -228,7 +235,7 @@ func (s *ControlledStore) reportViolation(ctx context.Context, event ViolationEv
 	// Always log violations
 	s.logger.WarnContext(ctx, "session policy violation",
 		slog.String("type", string(event.Type)),
-		slog.String("session_id", event.SessionID),
+		slog.String("session_ref", event.SessionRef),
 		slog.String("user_id", event.UserID.String()),
 		slog.String("site_id", event.SiteID),
 		slog.Int("size", event.Size),
@@ -314,13 +321,13 @@ func (s *ControlledStore) enforceSessionLimit(ctx context.Context, session *Sess
 
 	// Report violation (but don't fail - we'll evict old sessions)
 	s.reportViolation(ctx, ViolationEvent{
-		Type:      ViolationSessionLimitExceeded,
-		SessionID: session.ID,
-		UserID:    session.UserID,
-		SiteID:    s.config.SiteID,
-		Size:      len(sessions),
-		Limit:     s.config.MaxSessionsPerUser,
-		Message:   fmt.Sprintf("user has %d sessions, limit is %d, evicting %d oldest", len(sessions), s.config.MaxSessionsPerUser, sessionsToDelete),
+		Type:       ViolationSessionLimitExceeded,
+		SessionRef: SessionRef(session.ID),
+		UserID:     session.UserID,
+		SiteID:     s.config.SiteID,
+		Size:       len(sessions),
+		Limit:      s.config.MaxSessionsPerUser,
+		Message:    fmt.Sprintf("user has %d sessions, limit is %d, evicting %d oldest", len(sessions), s.config.MaxSessionsPerUser, sessionsToDelete),
 	})
 
 	// Delete oldest sessions to make room
@@ -328,14 +335,14 @@ func (s *ControlledStore) enforceSessionLimit(ctx context.Context, session *Sess
 		oldSession := sessions[i]
 		if err := s.store.Delete(ctx, oldSession.ID); err != nil {
 			s.logger.WarnContext(ctx, "failed to evict old session",
-				"session_id", oldSession.ID,
+				"session_ref", SessionRef(oldSession.ID),
 				"user_id", userID,
 				"error", err,
 			)
 			// Continue trying to delete others
 		} else {
 			s.logger.InfoContext(ctx, "evicted old session to enforce limit",
-				"session_id", oldSession.ID,
+				"session_ref", SessionRef(oldSession.ID),
 				"user_id", userID,
 			)
 		}
@@ -367,11 +374,11 @@ func (s *ControlledStore) checkSite(ctx context.Context, session *Session) error
 		return nil
 	}
 	s.reportViolation(ctx, ViolationEvent{
-		Type:      ViolationSiteMismatch,
-		SessionID: session.ID,
-		UserID:    session.UserID,
-		SiteID:    session.SiteID,
-		Message:   fmt.Sprintf("session belongs to site %q, expected %q", session.SiteID, s.config.SiteID),
+		Type:       ViolationSiteMismatch,
+		SessionRef: SessionRef(session.ID),
+		UserID:     session.UserID,
+		SiteID:     session.SiteID,
+		Message:    fmt.Sprintf("session belongs to site %q, expected %q", session.SiteID, s.config.SiteID),
 	})
 	return ErrNotFound
 }
