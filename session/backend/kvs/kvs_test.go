@@ -1,13 +1,17 @@
 package kvs_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 
+	"github.com/plexusone/omnistorage-core/kvs"
 	"github.com/plexusone/omnistorage-core/kvs/backend/memory"
 	"github.com/plexusone/omnistorage-core/session"
 	sessionkvs "github.com/plexusone/omnistorage-core/session/backend/kvs"
@@ -104,5 +108,60 @@ func TestValidSessionID(t *testing.T) {
 		if session.ValidSessionID(bad) {
 			t.Errorf("ValidSessionID(%q) = true", bad)
 		}
+	}
+}
+
+// flakyIndex fails reads of user index keys while failing is set.
+type flakyIndex struct {
+	kvs.ListableStore
+	failing bool
+}
+
+var errIndexRead = errors.New("index read failed")
+
+func (f *flakyIndex) Get(ctx context.Context, key string) ([]byte, error) {
+	if f.failing && strings.Contains(key, "user:") {
+		return nil, errIndexRead
+	}
+	return f.ListableStore.Get(ctx, key)
+}
+
+// A failed read of the user index must not let Create overwrite the index
+// with only the new session, which would hide the user's other sessions
+// from DeleteByUserID. The failure is logged and Create still succeeds.
+func TestCreateKeepsIndexWhenIndexReadFails(t *testing.T) {
+	ctx := context.Background()
+	backend := &flakyIndex{ListableStore: memory.New()}
+	s := sessionkvs.New(backend, session.Config{})
+	user := uuid.New()
+
+	var logs bytes.Buffer
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&logs, nil)))
+	t.Cleanup(func() { slog.SetDefault(prev) })
+
+	first := newSession(t, s, user)
+
+	backend.failing = true
+	second := newSession(t, s, user)
+	backend.failing = false
+
+	if !strings.Contains(logs.String(), "failed to add session to user index") {
+		t.Fatalf("index failure was not logged; logs: %s", logs.String())
+	}
+	if strings.Contains(logs.String(), second.ID) {
+		t.Fatal("log contains the session ID")
+	}
+
+	// The first session must still be reachable through the index.
+	n, err := s.DeleteByUserID(ctx, user.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n != 1 {
+		t.Fatalf("DeleteByUserID deleted %d, want 1", n)
+	}
+	if _, err := s.Get(ctx, first.ID); !errors.Is(err, session.ErrNotFound) {
+		t.Fatalf("first session survived DeleteByUserID: err = %v", err)
 	}
 }

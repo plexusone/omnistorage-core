@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -84,8 +85,11 @@ func (s *Store) Create(ctx context.Context, sess *session.Session) error {
 	// Update user index (store as JSON array of session IDs)
 	// Best effort - don't fail the create if index update fails.
 	// The cleanup routine will handle orphaned entries.
-	userKey := s.userSessionsKey(sess.UserID.String())
-	_ = s.addToUserIndex(ctx, userKey, sess.ID, ttl)
+	userID := sess.UserID.String()
+	if err := s.addToUserIndex(ctx, s.userSessionsKey(userID), sess.ID, ttl); err != nil {
+		slog.WarnContext(ctx, "session kvs: failed to add session to user index",
+			"user_id", userID, "error", err)
+	}
 
 	return nil
 }
@@ -117,7 +121,11 @@ func (s *Store) Get(ctx context.Context, id string) (*session.Session, error) {
 	}
 
 	if sess.IsExpired() {
-		_ = s.Delete(ctx, id)
+		// Best effort: the session is reported expired either way.
+		if err := s.Delete(ctx, id); err != nil {
+			slog.WarnContext(ctx, "session kvs: failed to delete expired session",
+				"user_id", sess.UserID.String(), "error", err)
+		}
 		return nil, session.ErrExpired
 	}
 
@@ -187,8 +195,12 @@ func (s *Store) Delete(ctx context.Context, id string) error {
 	if err := json.Unmarshal(data, &sess); err != nil || sess.ID != id {
 		return nil
 	}
-	userKey := s.userSessionsKey(sess.UserID.String())
-	_ = s.removeFromUserIndex(ctx, userKey, id)
+	userID := sess.UserID.String()
+	if err := s.removeFromUserIndex(ctx, s.userSessionsKey(userID), id); err != nil {
+		// Best effort: a stale index entry is dropped by cleanup.
+		slog.WarnContext(ctx, "session kvs: failed to remove session from user index",
+			"user_id", userID, "error", err)
+	}
 
 	return s.backend.Delete(ctx, s.sessionKey(id))
 }
@@ -207,13 +219,19 @@ func (s *Store) DeleteByUserID(ctx context.Context, userID string) (int, error) 
 
 	count := 0
 	for _, id := range sessionIDs {
-		if err := s.backend.Delete(ctx, s.sessionKey(id)); err == nil {
-			count++
+		if err := s.backend.Delete(ctx, s.sessionKey(id)); err != nil {
+			slog.WarnContext(ctx, "session kvs: failed to delete user session",
+				"user_id", userID, "error", err)
+			continue
 		}
+		count++
 	}
 
 	// Delete the user index
-	_ = s.backend.Delete(ctx, userKey)
+	if err := s.backend.Delete(ctx, userKey); err != nil {
+		slog.WarnContext(ctx, "session kvs: failed to delete user index",
+			"user_id", userID, "error", err)
+	}
 
 	return count, nil
 }
@@ -258,7 +276,12 @@ func (s *Store) getUserSessionIDs(ctx context.Context, userKey string) ([]string
 }
 
 func (s *Store) addToUserIndex(ctx context.Context, userKey, sessionID string, ttl time.Duration) error {
-	sessionIDs, _ := s.getUserSessionIDs(ctx, userKey)
+	// Do not write the index if it could not be read: that would replace
+	// it with this session only and drop the user's other sessions.
+	sessionIDs, err := s.getUserSessionIDs(ctx, userKey)
+	if err != nil {
+		return fmt.Errorf("read user index: %w", err)
+	}
 
 	// Add if not already present
 	for _, id := range sessionIDs {
@@ -326,6 +349,7 @@ func (s *Store) cleanupOrphanedIndexes() {
 	// List all user index keys
 	keys, err := s.backend.List(ctx, s.config.KeyPrefix+"user:")
 	if err != nil {
+		slog.WarnContext(ctx, "session kvs: failed to list user indexes", "error", err)
 		return
 	}
 
@@ -334,6 +358,8 @@ func (s *Store) cleanupOrphanedIndexes() {
 		userID := strings.TrimPrefix(key, s.config.KeyPrefix+"user:")
 		sessionIDs, err := s.getUserSessionIDs(ctx, key)
 		if err != nil {
+			slog.WarnContext(ctx, "session kvs: failed to read user index",
+				"user_id", userID, "error", err)
 			continue
 		}
 
@@ -348,10 +374,20 @@ func (s *Store) cleanupOrphanedIndexes() {
 
 		// Update or delete the index
 		if len(validIDs) == 0 {
-			_ = s.backend.Delete(ctx, s.userSessionsKey(userID))
+			if err := s.backend.Delete(ctx, s.userSessionsKey(userID)); err != nil {
+				slog.WarnContext(ctx, "session kvs: failed to delete empty user index",
+					"user_id", userID, "error", err)
+			}
 		} else if len(validIDs) < len(sessionIDs) {
-			data, _ := json.Marshal(validIDs)
-			_ = s.backend.Set(ctx, key, data, 0)
+			data, err := json.Marshal(validIDs)
+			if err != nil {
+				// Marshaling a []string cannot fail.
+				panic(fmt.Sprintf("session kvs: marshal user index: %v", err))
+			}
+			if err := s.backend.Set(ctx, key, data, 0); err != nil {
+				slog.WarnContext(ctx, "session kvs: failed to update user index",
+					"user_id", userID, "error", err)
+			}
 		}
 	}
 }
