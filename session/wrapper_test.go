@@ -828,3 +828,50 @@ func TestControlledStore_SiteIDMutations(t *testing.T) {
 		}
 	})
 }
+
+func TestControlledStore_DeleteByUserIDSiteScoped(t *testing.T) {
+	ctx := context.Background()
+	userID := uuid.New()
+	raw := sessionmemory.New(session.Config{DefaultTTL: time.Hour})
+	defer raw.Close()
+
+	ids := map[string][]string{}
+	for _, site := range []string{"site-a", "site-a", "site-b"} {
+		sess, err := session.NewSession(userID, time.Hour)
+		if err != nil {
+			t.Fatalf("NewSession failed: %v", err)
+		}
+		sess.SiteID = site
+		if err := raw.Create(ctx, sess); err != nil {
+			t.Fatalf("Create failed: %v", err)
+		}
+		ids[site] = append(ids[site], sess.ID)
+	}
+
+	store := session.WithControls(raw, session.Config{SiteID: "site-a", DefaultTTL: time.Hour})
+	n, err := store.DeleteByUserID(ctx, userID.String())
+	if err != nil {
+		t.Fatalf("DeleteByUserID failed: %v", err)
+	}
+	if n != 2 {
+		t.Fatalf("DeleteByUserID deleted %d, want 2", n)
+	}
+	for _, id := range ids["site-a"] {
+		if _, err := raw.Get(ctx, id); !errors.Is(err, session.ErrNotFound) {
+			t.Fatalf("site-a session still present: err = %v", err)
+		}
+	}
+	if _, err := raw.Get(ctx, ids["site-b"][0]); err != nil {
+		t.Fatalf("site-b session was deleted: %v", err)
+	}
+
+	// Without SiteID every session of the user is removed.
+	unscoped := session.WithControls(raw, session.Config{DefaultTTL: time.Hour})
+	n, err = unscoped.DeleteByUserID(ctx, userID.String())
+	if err != nil {
+		t.Fatalf("unscoped DeleteByUserID failed: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("unscoped DeleteByUserID deleted %d, want 1", n)
+	}
+}

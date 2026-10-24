@@ -428,8 +428,35 @@ func (s *ControlledStore) Delete(ctx context.Context, id string) error {
 }
 
 // DeleteByUserID removes all sessions for a user.
+// If SiteID is configured, only the user's sessions for this site are
+// removed; sessions of other sites sharing the backend are left in place.
+// That requires the underlying store to implement SessionLister; if it
+// does not, DeleteByUserID returns an error and deletes nothing.
 func (s *ControlledStore) DeleteByUserID(ctx context.Context, userID string) (int, error) {
-	return s.store.DeleteByUserID(ctx, userID)
+	if s.config.SiteID == "" {
+		return s.store.DeleteByUserID(ctx, userID)
+	}
+
+	lister, ok := s.store.(SessionLister)
+	if !ok {
+		return 0, fmt.Errorf("underlying store does not implement SessionLister, cannot delete sessions for site %q only", s.config.SiteID)
+	}
+	sessions, err := lister.ListByUserID(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, sess := range sessions {
+		if sess.SiteID != s.config.SiteID {
+			continue
+		}
+		if err := s.store.Delete(ctx, sess.ID); err != nil {
+			return count, fmt.Errorf("delete session for user %s: %w", userID, err)
+		}
+		count++
+	}
+	return count, nil
 }
 
 // Touch updates the LastAccessedAt timestamp.

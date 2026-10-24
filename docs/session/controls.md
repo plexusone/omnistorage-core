@@ -57,6 +57,7 @@ store.Create(ctx, sess)  // sess.SiteID = "academyos"
 | `Update` | Returns `ErrNotFound` if the stored session belongs to different site; otherwise sets `session.SiteID` from config before writing, so the binding survives updates of a rebuilt session |
 | `Delete` | Leaves a session of a different site in place and returns `nil`, as for a missing session |
 | `Touch` | Returns `ErrNotFound` if session belongs to different site |
+| `DeleteByUserID` | Deletes only the user's sessions for the configured site (requires a store implementing `SessionLister`) |
 | `ListByUserID` | Only returns sessions for the configured site |
 | `MaxSessionsPerUser` | Counts only sessions for this site |
 
