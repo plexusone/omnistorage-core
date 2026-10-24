@@ -3,6 +3,7 @@ package session_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -695,4 +696,135 @@ func TestControlledStore_SiteIDViolationHandler(t *testing.T) {
 			t.Errorf("Expected violation SiteID %q, got %q", "agentos", violations[0].SiteID)
 		}
 	}
+}
+
+func TestControlledStore_SiteIDMutations(t *testing.T) {
+	ctx := context.Background()
+	userID := uuid.New()
+	siteCfg := session.Config{SiteID: "site-a", DefaultTTL: time.Hour}
+
+	// newForeign stores a session tagged for another site directly in raw.
+	newForeign := func(t *testing.T, raw session.Store) *session.Session {
+		t.Helper()
+		sess, err := session.NewSession(userID, time.Hour)
+		if err != nil {
+			t.Fatalf("NewSession failed: %v", err)
+		}
+		sess.SiteID = "site-b"
+		if err := raw.Create(ctx, sess); err != nil {
+			t.Fatalf("Create failed: %v", err)
+		}
+		return sess
+	}
+
+	t.Run("Update keeps the site binding", func(t *testing.T) {
+		store := sessionmemory.NewWithControls(siteCfg)
+		defer store.Close()
+
+		sess, err := session.NewSession(userID, time.Hour)
+		if err != nil {
+			t.Fatalf("NewSession failed: %v", err)
+		}
+		if err := store.Create(ctx, sess); err != nil {
+			t.Fatalf("Create failed: %v", err)
+		}
+
+		// Callers often rebuild the session without SiteID before updating.
+		rebuilt := *sess
+		rebuilt.SiteID = ""
+		rebuilt.Data = map[string]any{"k": "v"}
+		if err := store.Update(ctx, &rebuilt); err != nil {
+			t.Fatalf("Update failed: %v", err)
+		}
+
+		got, err := store.Get(ctx, sess.ID)
+		if err != nil {
+			t.Fatalf("Get after Update failed: %v", err)
+		}
+		if got.SiteID != "site-a" {
+			t.Fatalf("SiteID = %q, want %q", got.SiteID, "site-a")
+		}
+	})
+
+	t.Run("Update rejects a session of another site", func(t *testing.T) {
+		raw := sessionmemory.New(session.Config{DefaultTTL: time.Hour})
+		store := session.WithControls(raw, siteCfg)
+		defer store.Close()
+
+		foreign := newForeign(t, raw)
+		overwrite := *foreign
+		overwrite.SiteID = ""
+		overwrite.Data = map[string]any{"k": "v"}
+		if err := store.Update(ctx, &overwrite); !errors.Is(err, session.ErrNotFound) {
+			t.Fatalf("Update err = %v, want ErrNotFound", err)
+		}
+
+		got, err := raw.Get(ctx, foreign.ID)
+		if err != nil {
+			t.Fatalf("raw Get failed: %v", err)
+		}
+		if got.SiteID != "site-b" || got.Data["k"] != nil {
+			t.Fatalf("foreign session was modified: site %q data %v", got.SiteID, got.Data)
+		}
+	})
+
+	t.Run("Delete leaves a session of another site", func(t *testing.T) {
+		raw := sessionmemory.New(session.Config{DefaultTTL: time.Hour})
+		store := session.WithControls(raw, siteCfg)
+		defer store.Close()
+
+		foreign := newForeign(t, raw)
+		if err := store.Delete(ctx, foreign.ID); err != nil {
+			t.Fatalf("Delete err = %v, want nil", err)
+		}
+		if _, err := raw.Get(ctx, foreign.ID); err != nil {
+			t.Fatalf("foreign session was deleted: %v", err)
+		}
+	})
+
+	t.Run("Delete removes a session of this site", func(t *testing.T) {
+		store := sessionmemory.NewWithControls(siteCfg)
+		defer store.Close()
+
+		sess, err := session.NewSession(userID, time.Hour)
+		if err != nil {
+			t.Fatalf("NewSession failed: %v", err)
+		}
+		if err := store.Create(ctx, sess); err != nil {
+			t.Fatalf("Create failed: %v", err)
+		}
+		if err := store.Delete(ctx, sess.ID); err != nil {
+			t.Fatalf("Delete failed: %v", err)
+		}
+		if _, err := store.Get(ctx, sess.ID); !errors.Is(err, session.ErrNotFound) {
+			t.Fatalf("Get after Delete err = %v, want ErrNotFound", err)
+		}
+		// Deleting a missing session stays a no-op.
+		if err := store.Delete(ctx, sess.ID); err != nil {
+			t.Fatalf("second Delete err = %v, want nil", err)
+		}
+	})
+
+	t.Run("Touch rejects a session of another site", func(t *testing.T) {
+		raw := sessionmemory.New(session.Config{DefaultTTL: time.Hour})
+		store := session.WithControls(raw, siteCfg)
+		defer store.Close()
+
+		foreign := newForeign(t, raw)
+		before, err := raw.Get(ctx, foreign.ID)
+		if err != nil {
+			t.Fatalf("raw Get failed: %v", err)
+		}
+		time.Sleep(5 * time.Millisecond)
+		if err := store.Touch(ctx, foreign.ID); !errors.Is(err, session.ErrNotFound) {
+			t.Fatalf("Touch err = %v, want ErrNotFound", err)
+		}
+		after, err := raw.Get(ctx, foreign.ID)
+		if err != nil {
+			t.Fatalf("raw Get failed: %v", err)
+		}
+		if !after.LastAccessedAt.Equal(before.LastAccessedAt) {
+			t.Fatal("foreign session was touched")
+		}
+	})
 }

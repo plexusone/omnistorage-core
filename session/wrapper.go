@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -351,27 +352,58 @@ func (s *ControlledStore) Get(ctx context.Context, id string) (*Session, error) 
 		return nil, err
 	}
 
-	// Validate SiteID if configured
-	if s.config.SiteID != "" && session.SiteID != s.config.SiteID {
-		s.reportViolation(ctx, ViolationEvent{
-			Type:      ViolationSiteMismatch,
-			SessionID: session.ID,
-			UserID:    session.UserID,
-			SiteID:    session.SiteID,
-			Message:   fmt.Sprintf("session belongs to site %q, expected %q", session.SiteID, s.config.SiteID),
-		})
-
-		// Return ErrNotFound to avoid leaking that the session exists on another site
-		return nil, ErrNotFound
+	if err := s.checkSite(ctx, session); err != nil {
+		return nil, err
 	}
 
 	return session, nil
 }
 
+// checkSite reports a site mismatch and returns ErrNotFound when SiteID is
+// configured and the stored session belongs to a different site. ErrNotFound
+// avoids leaking that the session exists on another site.
+func (s *ControlledStore) checkSite(ctx context.Context, session *Session) error {
+	if s.config.SiteID == "" || session.SiteID == s.config.SiteID {
+		return nil
+	}
+	s.reportViolation(ctx, ViolationEvent{
+		Type:      ViolationSiteMismatch,
+		SessionID: session.ID,
+		UserID:    session.UserID,
+		SiteID:    session.SiteID,
+		Message:   fmt.Sprintf("session belongs to site %q, expected %q", session.SiteID, s.config.SiteID),
+	})
+	return ErrNotFound
+}
+
+// verifyOwnership loads the stored session with the given ID and checks it
+// belongs to the configured site. It does nothing when SiteID is not
+// configured. Errors from the underlying store, including ErrNotFound, are
+// returned as is.
+func (s *ControlledStore) verifyOwnership(ctx context.Context, id string) error {
+	if s.config.SiteID == "" {
+		return nil
+	}
+	stored, err := s.store.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	return s.checkSite(ctx, stored)
+}
+
 // Update updates an existing session with validation.
+// If SiteID is configured, the stored session must belong to this site
+// (otherwise ErrNotFound is returned), and the updated session is stamped
+// with the configured SiteID so the site binding survives the write.
 func (s *ControlledStore) Update(ctx context.Context, session *Session) error {
 	if err := s.validateSession(ctx, session); err != nil {
 		return err
+	}
+	if err := s.verifyOwnership(ctx, session.ID); err != nil {
+		return err
+	}
+	if s.config.SiteID != "" {
+		session.SiteID = s.config.SiteID
 	}
 	if err := s.validateSerializable(ctx, session); err != nil {
 		return err
@@ -383,7 +415,15 @@ func (s *ControlledStore) Update(ctx context.Context, session *Session) error {
 }
 
 // Delete removes a session by ID.
+// If SiteID is configured, a session that belongs to another site is left
+// in place and, like a missing session, Delete returns nil.
 func (s *ControlledStore) Delete(ctx context.Context, id string) error {
+	if err := s.verifyOwnership(ctx, id); err != nil {
+		if errors.Is(err, ErrNotFound) {
+			return nil
+		}
+		return err
+	}
 	return s.store.Delete(ctx, id)
 }
 
@@ -393,7 +433,12 @@ func (s *ControlledStore) DeleteByUserID(ctx context.Context, userID string) (in
 }
 
 // Touch updates the LastAccessedAt timestamp.
+// If SiteID is configured, a session that belongs to another site returns
+// ErrNotFound.
 func (s *ControlledStore) Touch(ctx context.Context, id string) error {
+	if err := s.verifyOwnership(ctx, id); err != nil {
+		return err
+	}
 	return s.store.Touch(ctx, id)
 }
 
