@@ -62,7 +62,7 @@ func (s *Store) Create(ctx context.Context, sess *session.Session) error {
 		return session.ErrClosed
 	}
 
-	if sess == nil || sess.ID == "" {
+	if sess == nil || !session.ValidSessionID(sess.ID) {
 		return session.ErrInvalidSession
 	}
 
@@ -96,6 +96,10 @@ func (s *Store) Get(ctx context.Context, id string) (*session.Session, error) {
 		return nil, session.ErrClosed
 	}
 
+	if !session.ValidSessionID(id) {
+		return nil, session.ErrNotFound
+	}
+
 	data, err := s.backend.Get(ctx, s.sessionKey(id))
 	if err == kvs.ErrNotFound {
 		return nil, session.ErrNotFound
@@ -107,6 +111,9 @@ func (s *Store) Get(ctx context.Context, id string) (*session.Session, error) {
 	var sess session.Session
 	if err := json.Unmarshal(data, &sess); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal session: %w", err)
+	}
+	if sess.ID != id {
+		return nil, session.ErrNotFound
 	}
 
 	if sess.IsExpired() {
@@ -123,7 +130,7 @@ func (s *Store) Update(ctx context.Context, sess *session.Session) error {
 		return session.ErrClosed
 	}
 
-	if sess == nil || sess.ID == "" {
+	if sess == nil || !session.ValidSessionID(sess.ID) {
 		return session.ErrInvalidSession
 	}
 
@@ -161,15 +168,27 @@ func (s *Store) Delete(ctx context.Context, id string) error {
 		return session.ErrClosed
 	}
 
-	// Get session to find user ID for index cleanup
-	data, err := s.backend.Get(ctx, s.sessionKey(id))
-	if err == nil {
-		var sess session.Session
-		if json.Unmarshal(data, &sess) == nil {
-			userKey := s.userSessionsKey(sess.UserID.String())
-			_ = s.removeFromUserIndex(ctx, userKey, id)
-		}
+	// Like a missing session, an ID that cannot name one is a no-op.
+	if !session.ValidSessionID(id) {
+		return nil
 	}
+
+	// Delete only a stored session with this ID, never another record
+	// (such as a user index) that happens to sit at the key, and take it
+	// out of its user's index.
+	data, err := s.backend.Get(ctx, s.sessionKey(id))
+	if err == kvs.ErrNotFound {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to get session: %w", err)
+	}
+	var sess session.Session
+	if err := json.Unmarshal(data, &sess); err != nil || sess.ID != id {
+		return nil
+	}
+	userKey := s.userSessionsKey(sess.UserID.String())
+	_ = s.removeFromUserIndex(ctx, userKey, id)
 
 	return s.backend.Delete(ctx, s.sessionKey(id))
 }
