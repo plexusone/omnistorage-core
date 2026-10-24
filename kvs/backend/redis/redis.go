@@ -6,7 +6,9 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -33,7 +35,21 @@ type Config struct {
 
 	// ConnectTimeout is the connection timeout (default: 5s).
 	ConnectTimeout time.Duration
+
+	// AllowInsecure permits connecting to a non-loopback Redis server
+	// without TLS, without a password, or with TLS certificate
+	// verification disabled (skip_verify). By default New refuses such
+	// connections with ErrInsecureConnection, because session data and
+	// tokens would cross the network in plaintext or be readable by
+	// anyone who can reach the server. Loopback addresses and Unix
+	// sockets are always allowed. Set this only for trusted networks.
+	AllowInsecure bool
 }
+
+// ErrInsecureConnection is returned by New when the Redis URL names a
+// non-loopback server and does not use TLS (rediss://) with certificate
+// verification and a password, and Config.AllowInsecure is false.
+var ErrInsecureConnection = errors.New("insecure redis connection")
 
 // DefaultConfig returns sensible defaults.
 func DefaultConfig() Config {
@@ -61,6 +77,12 @@ func New(cfg Config) (*Store, error) {
 		return nil, fmt.Errorf("invalid redis URL: %w", err)
 	}
 
+	if !cfg.AllowInsecure {
+		if err := checkSecure(opt); err != nil {
+			return nil, err
+		}
+	}
+
 	if cfg.PoolSize > 0 {
 		opt.PoolSize = cfg.PoolSize
 	}
@@ -83,6 +105,34 @@ func New(cfg Config) (*Store, error) {
 		client:    client,
 		keyPrefix: cfg.KeyPrefix,
 	}, nil
+}
+
+// checkSecure returns ErrInsecureConnection unless opt connects over a
+// Unix socket or to a loopback address, or uses verified TLS and a
+// password.
+func checkSecure(opt *redis.Options) error {
+	if opt.Network == "unix" {
+		return nil
+	}
+	host, _, err := net.SplitHostPort(opt.Addr)
+	if err != nil {
+		host = opt.Addr
+	}
+	if host == "localhost" {
+		return nil
+	}
+	if ip := net.ParseIP(host); ip != nil && ip.IsLoopback() {
+		return nil
+	}
+	switch {
+	case opt.TLSConfig == nil:
+		return fmt.Errorf("%w: %s does not use TLS (use rediss://, or set AllowInsecure)", ErrInsecureConnection, host)
+	case opt.TLSConfig.InsecureSkipVerify:
+		return fmt.Errorf("%w: %s skips TLS certificate verification (remove skip_verify, or set AllowInsecure)", ErrInsecureConnection, host)
+	case opt.Password == "":
+		return fmt.Errorf("%w: %s has no password (add credentials to the URL, or set AllowInsecure)", ErrInsecureConnection, host)
+	}
+	return nil
 }
 
 // key returns the full Redis key with prefix.

@@ -387,6 +387,8 @@ keys, _ := store.List(ctx, "user:")
 - `kvs/backend/sqlite` - SQLite (persistent)
 - `kvs/backend/redis` - Redis (distributed)
 
+The Redis backend refuses a non-loopback server unless the URL uses TLS (`rediss://`) and a password; set `AllowInsecure` to opt out on a trusted network.
+
 ## Session Storage
 
 The `session` package provides secure session management with multi-site isolation.

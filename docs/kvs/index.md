@@ -64,8 +64,37 @@ type Config struct {
     // ConnectTimeout is the connection timeout.
     // Default: 5 seconds
     ConnectTimeout time.Duration
+
+    // AllowInsecure permits a non-loopback connection without TLS,
+    // without a password, or with skip_verify. Default: false
+    AllowInsecure bool
 }
 ```
+
+**Connection security:**
+
+`New` refuses to connect to a Redis server on a non-loopback address unless
+the URL uses TLS (`rediss://`) with certificate verification and includes a
+password, and returns an error wrapping `kvsredis.ErrInsecureConnection`
+otherwise. Loopback addresses (`localhost`, `127.0.0.0/8`, `::1`) and Unix
+sockets (`unix://`) are always allowed, so local development is unchanged.
+
+```go
+// Remote server: TLS and credentials required
+store, err := kvsredis.New(kvsredis.Config{
+    URL: "rediss://app:" + password + "@cache.internal:6380/0",
+})
+
+// Trusted private network without TLS or AUTH: opt in explicitly
+store, err := kvsredis.New(kvsredis.Config{
+    URL:           "redis://cache.internal:6379",
+    AllowInsecure: true,
+})
+```
+
+Set `AllowInsecure` only when the network path to Redis is trusted. Without
+TLS, everything stored, including session data and tokens, crosses the
+network in plaintext.
 
 ## Use Cases
 
