@@ -542,4 +542,4 @@ We welcome contributions! Priority areas:
 3. **Documentation** - Examples, guides, GoDoc
 4. **Bug fixes** - Issues labeled `good first issue`
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Open an [issue](https://github.com/plexusone/omnistorage-core/issues) to discuss a change before sending a pull request.
