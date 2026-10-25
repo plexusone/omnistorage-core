@@ -4,18 +4,56 @@
   "repository": "https://github.com/plexusone/omnistorage-core",
   "versioning": "semver",
   "commitConvention": "conventional",
-  "unreleased": {
-    "security": [
-      { "description": "The kvs session backend kept sessions and each user's session index in one key space and used session IDs from client cookies as given, so the ID `user:<id>` addressed a user's index: deleting it hid the user's sessions from `DeleteByUserID`. Session IDs are now validated, and `Delete` removes only a stored session with that ID" }
-    ],
-    "added": [
-      { "description": "session: `ValidSessionID` and `MaxSessionIDLength`" }
-    ],
-    "tests": [
-      { "description": "kvs session backend tests, including a crafted index ID" }
-    ]
-  },
   "releases": [
+    {
+      "version": "v0.6.0",
+      "date": "2026-10-25",
+      "highlights": [
+        { "description": "Security release for the session and Redis packages: session IDs are validated and kept out of logs and errors, `SiteID` is enforced on every session operation, and the Redis backend requires TLS and a password for remote servers" }
+      ],
+      "breaking": [
+        { "description": "`session.ViolationEvent.SessionID` is deprecated and always empty; use the new `SessionRef` field. `SessionError.Details` and the violation and eviction logs use the key `session_ref` instead of `session_id`", "commit": "6a98254" },
+        { "description": "`kvsredis.New` returns an error wrapping `ErrInsecureConnection` for a non-loopback `redis://` URL, a `rediss://` URL without a password, or a URL with `skip_verify=true`, unless `Config.AllowInsecure` is set", "commit": "080e710" },
+        { "description": "The kvs session backend refuses session IDs that `ValidSessionID` rejects (more than `MaxSessionIDLength` characters, or characters outside A-Z, a-z, 0-9, `-`, `_` and `.`): `Create` and `Update` return `ErrInvalidSession`, `Get` returns `ErrNotFound` and `Delete` is a no-op", "commit": "8286ea3" },
+        { "description": "With `SiteID` set, `ControlledStore.Update` and `Touch` return `ErrNotFound` for a session stored for another site and `Delete` leaves it in place, and `DeleteByUserID` deletes only this site's sessions and returns an error when the underlying store does not implement `SessionLister`", "commit": "f30e70d" }
+      ],
+      "upgradeGuide": [
+        { "description": "Violation handlers and log or metrics pipelines: read `event.SessionRef` instead of `event.SessionID`, and the `session_ref` key instead of `session_id`; compare a known session ID with `session.SessionRef(id)`" },
+        { "description": "Redis: use `rediss://:<password>@host:port` with certificate verification for any non-loopback server, or set `kvsredis.Config{AllowInsecure: true}` for a trusted network" },
+        { "description": "Custom session IDs: generate them with `session.GenerateSessionID`, or make sure they pass `session.ValidSessionID`; sessions stored under other IDs in the kvs backend can no longer be read and should be recreated" },
+        { "description": "Multi-site deployments: keep `SiteID` the same across the processes of one site, and use a session store that implements `SessionLister` (both bundled backends do) if you call `DeleteByUserID`" }
+      ],
+      "security": [
+        { "description": "The kvs session backend kept sessions and each user's session index in one key space and used session IDs from client cookies as given, so the ID `user:<id>` addressed a user's index: deleting it hid the user's sessions from `DeleteByUserID`. Session IDs are now validated, and `Get` and `Delete` act only on a stored session with that ID", "commit": "8286ea3" },
+        { "description": "`ControlledStore` put the full session ID, a bearer credential, into violation log lines, `ViolationEvent.SessionID`, `SessionError` details and the eviction log, so anyone with access to logs, metrics or error reports could take over the session. These now carry a non-reversible reference (the first 8 hex characters of the SHA-256 of the ID)", "commit": "6a98254" },
+        { "description": "`ControlledStore` stamped `SiteID` on `Create` and checked it on `Get` only: `Update` wrote the session as given, so a session rebuilt without `SiteID` was stored for site \"\", and `Update`, `Delete` and `Touch` acted on sessions of another site sharing the backend. They now enforce the configured site and report a `site_mismatch` violation", "commit": "f30e70d" },
+        { "description": "`ControlledStore.DeleteByUserID` passed straight through, so one site's \"log out everywhere\" also ended the user's sessions on every other site sharing the backend. With `SiteID` set it now deletes only this site's sessions", "commit": "88f37e8" },
+        { "description": "`kvsredis.New` accepted any `redis://` URL, so a remote Redis could be used over plaintext and without authentication, exposing session data and tokens on the network. Non-loopback servers now require `rediss://` with certificate verification and a password", "commit": "080e710" },
+        { "description": "The Redis backend's `List` built its `SCAN MATCH` pattern without escaping, so glob metacharacters in the key prefix or the requested prefix matched keys outside it, including other namespaces sharing the instance. The literal prefix is now escaped and keys outside the requested prefix are dropped", "commit": "32c897b" }
+      ],
+      "added": [
+        { "description": "`session.ValidSessionID` and `session.MaxSessionIDLength`", "commit": "8286ea3" },
+        { "description": "`session.SessionRef` and `ViolationEvent.SessionRef`", "commit": "6a98254" },
+        { "description": "`kvsredis.Config.AllowInsecure` and `kvsredis.ErrInsecureConnection`", "commit": "080e710" }
+      ],
+      "fixed": [
+        { "description": "The kvs session backend logs failures of its best-effort user index maintenance with `slog.WarnContext` instead of discarding them, and `Create` no longer overwrites a user's index it could not read, which hid the user's other sessions from `DeleteByUserID`", "commit": "91b1e12" }
+      ],
+      "documentation": [
+        { "description": "KVS guide and README describe the Redis connection requirements and `AllowInsecure`", "commit": "080e710" },
+        { "description": "Session controls guide describes site enforcement on every operation, site-scoped `DeleteByUserID` and `session_ref`", "commit": "6a98254" }
+      ],
+      "tests": [
+        { "description": "kvs session backend tests, including a crafted index ID and index maintenance failures", "commit": "8286ea3" },
+        { "description": "`ControlledStore` tests for site enforcement on `Update`, `Delete`, `Touch` and `DeleteByUserID`, and for session references in events, errors and logs", "commit": "f30e70d" },
+        { "description": "Redis backend tests for connection requirements and prefix escaping", "commit": "080e710" }
+      ],
+      "dependencies": [
+        { "description": "Bump `github.com/grokify/oscompat` from 0.5.0 to 0.7.0", "commit": "d7e9ddf" },
+        { "description": "Bump `github.com/klauspost/compress` from 1.20.1 to 1.20.3", "commit": "1fb372f" },
+        { "description": "Bump `golang.org/x/crypto` from 0.57.0 to 0.58.0", "commit": "a320faf" }
+      ]
+    },
     {
       "version": "v0.5.0",
       "date": "2026-06-20",
@@ -23,38 +61,38 @@
         { "description": "Session storage package with multi-site isolation, size controls, and per-user limits. Redis backend for KVS." }
       ],
       "added": [
-        { "description": "Session storage package (`session/`) with `Store` interface for session management", "commit": "7d9fc52" },
-        { "description": "`ControlledStore` wrapper with size limits, JSON validation, and violation callbacks", "commit": "7d9fc52" },
-        { "description": "Multi-site isolation via `SiteID` configuration for secure session separation", "commit": "7d9fc52" },
-        { "description": "`MaxSessionsPerUser` limit with automatic oldest session eviction", "commit": "7d9fc52" },
-        { "description": "Structured error types with machine-readable codes for HTTP status mapping", "commit": "7d9fc52" },
-        { "description": "In-memory session backend (`session/backend/memory`) for development/testing", "commit": "7d9fc52" },
-        { "description": "KVS session backend (`session/backend/kvs`) adapting any `kvs.ListableStore`", "commit": "7d9fc52" },
-        { "description": "Redis KVS backend (`kvs/backend/redis`) using `go-redis/v9`", "commit": "af070a6" },
-        { "description": "`ViolationHandler` callback for metrics and alerting on policy violations", "commit": "7d9fc52" }
+        { "description": "Session storage package (`session/`) with `Store` interface for session management", "commit": "221c0b9" },
+        { "description": "`ControlledStore` wrapper with size limits, JSON validation, and violation callbacks", "commit": "221c0b9" },
+        { "description": "Multi-site isolation via `SiteID` configuration for secure session separation", "commit": "221c0b9" },
+        { "description": "`MaxSessionsPerUser` limit with automatic oldest session eviction", "commit": "221c0b9" },
+        { "description": "Structured error types with machine-readable codes for HTTP status mapping", "commit": "221c0b9" },
+        { "description": "In-memory session backend (`session/backend/memory`) for development/testing", "commit": "221c0b9" },
+        { "description": "KVS session backend (`session/backend/kvs`) adapting any `kvs.ListableStore`", "commit": "221c0b9" },
+        { "description": "Redis KVS backend (`kvs/backend/redis`) using `go-redis/v9`", "commit": "5687d5b" },
+        { "description": "`ViolationHandler` callback for metrics and alerting on policy violations", "commit": "221c0b9" }
       ],
       "documentation": [
-        { "description": "KVS package documentation (`docs/kvs/index.md`)", "commit": "b0487b7" },
-        { "description": "Session package overview (`docs/session/index.md`)", "commit": "b0487b7" },
-        { "description": "Session backends guide (`docs/session/backends.md`)", "commit": "b0487b7" },
-        { "description": "Session controls reference (`docs/session/controls.md`)", "commit": "b0487b7" },
-        { "description": "MkDocs navigation updated with Key-Value Storage and Session Storage sections", "commit": "b0487b7" }
+        { "description": "KVS package documentation (`docs/kvs/index.md`)", "commit": "160741b" },
+        { "description": "Session package overview (`docs/session/index.md`)", "commit": "160741b" },
+        { "description": "Session backends guide (`docs/session/backends.md`)", "commit": "160741b" },
+        { "description": "Session controls reference (`docs/session/controls.md`)", "commit": "160741b" },
+        { "description": "MkDocs navigation updated with Key-Value Storage and Session Storage sections", "commit": "160741b" }
       ],
       "tests": [
-        { "description": "Comprehensive tests for `ControlledStore` including size limits, JSON validation, and site isolation", "commit": "2fc32ec" }
+        { "description": "Comprehensive tests for `ControlledStore` including size limits, JSON validation, and site isolation", "commit": "a994541" }
       ],
       "fixed": [
-        { "description": "Linting issues in session package resolved", "commit": "c39f3de" }
+        { "description": "Linting issues in session package resolved", "commit": "9a9a355" }
       ],
       "dependencies": [
-        { "description": "Add `github.com/redis/go-redis/v9` v9.20.1 for Redis KVS backend", "commit": "a14c5d6" },
-        { "description": "Promote `github.com/google/uuid` to direct dependency", "commit": "a14c5d6" },
-        { "description": "Bump `github.com/grokify/mogo` from 0.74.5 to 0.74.6", "commit": "f8bdc19" },
-        { "description": "Bump `golang.org/x/crypto` from 0.52.0 to 0.53.0", "commit": "da59873" },
-        { "description": "Bump `golang.org/x/sys` from 0.45.0 to 0.46.0", "commit": "a14c5d6" },
-        { "description": "Bump `modernc.org/libc` from 1.72.3 to 1.73.4", "commit": "a14c5d6" },
-        { "description": "Bump `modernc.org/sqlite` from 1.50.0 to 1.52.0", "commit": "c3f9f97" },
-        { "description": "Bump `github.com/grokify/oscompat` from 0.3.0 to 0.4.0", "commit": "c682e77" }
+        { "description": "Add `github.com/redis/go-redis/v9` v9.20.1 for Redis KVS backend", "commit": "35e1ba9" },
+        { "description": "Promote `github.com/google/uuid` to direct dependency", "commit": "35e1ba9" },
+        { "description": "Bump `github.com/grokify/mogo` from 0.74.5 to 0.74.6", "commit": "3e455b1" },
+        { "description": "Bump `golang.org/x/crypto` from 0.52.0 to 0.53.0", "commit": "cd306e5" },
+        { "description": "Bump `golang.org/x/sys` from 0.45.0 to 0.46.0", "commit": "35e1ba9" },
+        { "description": "Bump `modernc.org/libc` from 1.72.3 to 1.73.4", "commit": "35e1ba9" },
+        { "description": "Bump `modernc.org/sqlite` from 1.50.0 to 1.52.0", "commit": "9b92b9e" },
+        { "description": "Bump `github.com/grokify/oscompat` from 0.3.0 to 0.4.0", "commit": "9f97558" }
       ]
     },
     {
@@ -64,9 +102,9 @@
         { "description": "Root-level aggregator for batteries-included backend registration" }
       ],
       "added": [
-        { "description": "Root aggregator `omnistorage.go` that re-exports core types and auto-registers all built-in backends (channel, dropbox, file, memory, sftp)", "commit": "09d982d" },
-        { "description": "Users can now import `github.com/plexusone/omnistorage-core` directly to get all core backends registered automatically", "commit": "09d982d" },
-        { "description": "`Backends()` function re-exported in aggregator to list registered backends", "commit": "25da889" }
+        { "description": "Root aggregator `omnistorage.go` that re-exports core types and auto-registers all built-in backends (channel, dropbox, file, memory, sftp)", "commit": "edd22c1" },
+        { "description": "Users can now import `github.com/plexusone/omnistorage-core` directly to get all core backends registered automatically", "commit": "edd22c1" },
+        { "description": "`Backends()` function re-exported in aggregator to list registered backends", "commit": "fc31d32" }
       ],
       "documentation": [
         { "description": "README updated with aggregator import usage example", "commit": "" },
@@ -80,34 +118,34 @@
         { "description": "Organization change: module renamed from github.com/grokify/omnistorage to github.com/plexusone/omnistorage-core with reorganized package structure" }
       ],
       "breaking": [
-        { "description": "Module renamed from `github.com/grokify/omnistorage` to `github.com/plexusone/omnistorage-core`", "commit": "85b2b62" },
-        { "description": "Package structure reorganized: `backend/` → `object/backend/`, `compress/` → `object/compress/`, `format/` → `object/format/`, `sync/` → `object/sync/`", "commit": "85b2b62" },
-        { "description": "S3 backend removed from core; now available in separate [`plexusone/omni-aws`](https://github.com/plexusone/omni-aws) package", "commit": "85b2b62" },
-        { "description": "AWS SDK dependencies removed to keep core thin and provider-agnostic", "commit": "85b2b62" }
+        { "description": "Module renamed from `github.com/grokify/omnistorage` to `github.com/plexusone/omnistorage-core`", "commit": "988a83b" },
+        { "description": "Package structure reorganized: `backend/` → `object/backend/`, `compress/` → `object/compress/`, `format/` → `object/format/`, `sync/` → `object/sync/`", "commit": "988a83b" },
+        { "description": "S3 backend removed from core; now available in separate [`plexusone/omni-aws`](https://github.com/plexusone/omni-aws) package", "commit": "988a83b" },
+        { "description": "AWS SDK dependencies removed to keep core thin and provider-agnostic", "commit": "988a83b" }
       ],
       "added": [
-        { "description": "New `kvs/` subsystem for key-value storage with `Store`, `ListableStore`, and `DocumentStore` interfaces", "commit": "85b2b62" },
-        { "description": "In-memory KVS backend (`kvs/backend/memory`) for ephemeral storage", "commit": "85b2b62" },
-        { "description": "SQLite KVS backend (`kvs/backend/sqlite`) for persistent key-value storage using `modernc.org/sqlite`", "commit": "85b2b62" }
+        { "description": "New `kvs/` subsystem for key-value storage with `Store`, `ListableStore`, and `DocumentStore` interfaces", "commit": "988a83b" },
+        { "description": "In-memory KVS backend (`kvs/backend/memory`) for ephemeral storage", "commit": "988a83b" },
+        { "description": "SQLite KVS backend (`kvs/backend/sqlite`) for persistent key-value storage using `modernc.org/sqlite`", "commit": "988a83b" }
       ],
       "changed": [
-        { "description": "MkDocs theme updated to PlexusOne design system with dark mode default", "commit": "2a499af" },
-        { "description": "Site URL updated to `plexusone.github.io/omnistorage-core`", "commit": "2a499af" }
+        { "description": "MkDocs theme updated to PlexusOne design system with dark mode default", "commit": "6333164" },
+        { "description": "Site URL updated to `plexusone.github.io/omnistorage-core`", "commit": "6333164" }
       ],
       "documentation": [
-        { "description": "All documentation updated for new module name and package paths", "commit": "a0114c1" },
-        { "description": "S3 backend documentation updated to reference `plexusone/omni-aws` package", "commit": "a0114c1" },
-        { "description": "README badges and links updated for new organization", "commit": "3cf603d" }
+        { "description": "All documentation updated for new module name and package paths", "commit": "5d41959" },
+        { "description": "S3 backend documentation updated to reference `plexusone/omni-aws` package", "commit": "5d41959" },
+        { "description": "README badges and links updated for new organization", "commit": "8544a5b" }
       ],
       "dependencies": [
-        { "description": "Add `modernc.org/sqlite` v1.49.1 for SQLite KVS backend", "commit": "85b2b62" },
-        { "description": "Remove AWS SDK v2 dependencies (moved to omni-aws)", "commit": "85b2b62" },
-        { "description": "Bump `github.com/grokify/mogo` from 0.74.0 to 0.74.2", "commit": "07a9cf5" },
-        { "description": "Bump `golang.org/x/crypto` from 0.49.0 to 0.50.0", "commit": "80c7c47" },
-        { "description": "Bump `github.com/klauspost/compress` from 1.18.4 to 1.18.5", "commit": "05a4c52" }
+        { "description": "Add `modernc.org/sqlite` v1.49.1 for SQLite KVS backend", "commit": "988a83b" },
+        { "description": "Remove AWS SDK v2 dependencies (moved to omni-aws)", "commit": "988a83b" },
+        { "description": "Bump `github.com/grokify/mogo` from 0.74.0 to 0.74.2", "commit": "a13726b" },
+        { "description": "Bump `golang.org/x/crypto` from 0.49.0 to 0.50.0", "commit": "24f23b2" },
+        { "description": "Bump `github.com/klauspost/compress` from 1.18.4 to 1.18.5", "commit": "14b6088" }
       ],
       "ci": [
-        { "description": "Update shared CI/CD pipelines to 0.3.0", "commit": "c261d5a" }
+        { "description": "Update shared CI/CD pipelines to 0.3.0", "commit": "382d6ea" }
       ]
     },
     {
@@ -117,21 +155,21 @@
         { "description": "Security fix for SFTP host key verification, cross-platform timestamp improvements, and dependency updates" }
       ],
       "security": [
-        { "description": "SFTP backend now verifies host keys using `~/.ssh/known_hosts` instead of `InsecureIgnoreHostKey()` to prevent MITM attacks", "commit": "8bf114c" }
+        { "description": "SFTP backend now verifies host keys using `~/.ssh/known_hosts` instead of `InsecureIgnoreHostKey()` to prevent MITM attacks", "commit": "6f7b22b" }
       ],
       "changed": [
-        { "description": "SFTP backend requires server host key in `~/.ssh/known_hosts` file for connections", "commit": "8bf114c" },
-        { "description": "Use `oscompat/tsync` for cross-platform timestamp comparison in `sync.NeedsUpdate()`", "commit": "75bb613" }
+        { "description": "SFTP backend requires server host key in `~/.ssh/known_hosts` file for connections", "commit": "6f7b22b" },
+        { "description": "Use `oscompat/tsync` for cross-platform timestamp comparison in `sync.NeedsUpdate()`", "commit": "c96f8f6" }
       ],
       "dependencies": [
-        { "description": "Add `github.com/grokify/oscompat` v0.1.0 dependency", "commit": "75bb613" },
-        { "description": "Bump `github.com/klauspost/compress` from 1.18.2 to 1.18.3", "commit": "1c2da6e" },
-        { "description": "Bump `golang.org/x/crypto` from 0.46.0 to 0.47.0", "commit": "bcc14ea" },
-        { "description": "Bump `github.com/grokify/mogo` from 0.72.5 to 0.72.6", "commit": "bd348b1" }
+        { "description": "Add `github.com/grokify/oscompat` v0.1.0 dependency", "commit": "c96f8f6" },
+        { "description": "Bump `github.com/klauspost/compress` from 1.18.2 to 1.18.3", "commit": "afe069e" },
+        { "description": "Bump `golang.org/x/crypto` from 0.46.0 to 0.47.0", "commit": "2cbfee2" },
+        { "description": "Bump `github.com/grokify/mogo` from 0.72.5 to 0.72.6", "commit": "432dd2a" }
       ],
       "documentation": [
-        { "description": "Rename Omnistorage to OmniStorage in documentation", "commit": "190488c" },
-        { "description": "Fix TRD.md formatting", "commit": "c38909e" }
+        { "description": "Rename Omnistorage to OmniStorage in documentation", "commit": "1f1ee11" },
+        { "description": "Fix TRD.md formatting", "commit": "405652a" }
       ]
     },
     {
@@ -178,11 +216,11 @@
         { "description": "`AsExtended()` helper for type-safe ExtendedBackend conversion", "commit": "0ae32d4" }
       ],
       "documentation": [
-        { "description": "README.md with usage examples and API documentation", "commit": "c311de1" },
-        { "description": "ROADMAP.md with development phases and planned features", "commit": "c311de1" },
-        { "description": "PRD.md (Product Requirements Document)", "commit": "c311de1" },
-        { "description": "TRD.md (Technical Requirements Document)", "commit": "c311de1" },
-        { "description": "GoDoc comments on all public APIs", "commit": "c311de1" }
+        { "description": "README.md with usage examples and API documentation", "commit": "e48bda5" },
+        { "description": "ROADMAP.md with development phases and planned features", "commit": "e48bda5" },
+        { "description": "PRD.md (Product Requirements Document)", "commit": "e48bda5" },
+        { "description": "TRD.md (Technical Requirements Document)", "commit": "e48bda5" },
+        { "description": "GoDoc comments on all public APIs", "commit": "e48bda5" }
       ],
       "tests": [
         { "description": "Comprehensive test suite with 80+ tests across all packages", "commit": "de720c3" },
