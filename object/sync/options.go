@@ -61,7 +61,9 @@ type Options struct {
 	SizeOnly bool
 
 	// Progress is called with progress updates during sync.
-	// Can be nil if progress updates aren't needed.
+	// Can be nil if progress updates aren't needed. It is called from
+	// the transfer goroutines, possibly at the same time, so it must be
+	// safe for concurrent use.
 	Progress func(Progress)
 
 	// MaxErrors is the maximum number of errors before aborting.

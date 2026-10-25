@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"io"
+	gosync "sync"
 	"testing"
 	"time"
 
@@ -192,9 +193,14 @@ func TestSyncProgress(t *testing.T) {
 	writeFile(t, ctx, src, "file1.txt", "content1")
 	writeFile(t, ctx, src, "file2.txt", "content2")
 
-	var progressCalls []Phase
+	var (
+		mu            gosync.Mutex
+		progressCalls []Phase
+	)
 	_, err := Sync(ctx, src, dst, "", "", Options{
 		Progress: func(p Progress) {
+			mu.Lock()
+			defer mu.Unlock()
 			progressCalls = append(progressCalls, p.Phase)
 		},
 	})
