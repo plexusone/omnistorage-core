@@ -10,7 +10,7 @@ require (
 	github.com/pkg/sftp v1.13.12
 	github.com/redis/go-redis/v9 v9.23.0
 	golang.org/x/crypto v0.58.0
-	modernc.org/sqlite v1.61.0
+	modernc.org/sqlite v1.61.1
 )
 
 require (
