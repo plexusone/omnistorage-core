@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/google/uuid v1.6.0
 	github.com/grokify/mogo v0.75.0
-	github.com/grokify/oscompat v0.11.0
+	github.com/grokify/oscompat v0.13.0
 	github.com/klauspost/compress v1.20.3
 	github.com/pkg/sftp v1.13.12
 	github.com/redis/go-redis/v9 v9.23.0
