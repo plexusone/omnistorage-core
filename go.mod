@@ -8,7 +8,7 @@ require (
 	github.com/grokify/oscompat v0.13.0
 	github.com/klauspost/compress v1.20.5
 	github.com/pkg/sftp v1.13.12
-	github.com/redis/go-redis/v9 v9.23.0
+	github.com/redis/go-redis/v9 v9.24.0
 	golang.org/x/crypto v0.59.0
 	modernc.org/sqlite v1.62.0
 )
